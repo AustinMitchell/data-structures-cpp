@@ -2,14 +2,22 @@
 #include "SplayTree.hpp"
 
 int main() {
-    auto x = 5;
-    auto node = Node<int>{x};
-    node.insert(1);
-    node.insert(7);
-    node.insert(3);
-    node.insert(6);
+    auto tree = SplayTree<int>();
+    tree.insert(1);
+    tree.insert(2);
+    tree.insert(3);
+    tree.insert(4);
+    tree.insert(5);
+    tree.insert(6);
+    tree.insert(7);
+    tree.insert(8);
+    tree.insert(9);
+    tree.insert(0);
+    tree.insert(1);
 
-    std::cout << node.to_string() << std::endl;
+    std::cout << "Current tree:\n";
+    std::cout << tree.to_string() << '\n';
 
+    std::cout << std::endl;
     return 0;
 }
