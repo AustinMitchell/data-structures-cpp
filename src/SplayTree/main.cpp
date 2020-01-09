@@ -1,5 +1,8 @@
-#include <iostream>
+// Copyright 2019 Nathaniel Mitchell
+
 #include "SplayTree.hpp"
+#include <iostream>
+#include <string>
 
 int main() {
     auto tree = SplayTree<int>();
@@ -16,7 +19,7 @@ int main() {
     tree.insert(1);
 
     std::cout << "Current tree:\n";
-    std::cout << tree.to_string() << '\n';
+    std::cout << std::to_string(tree) << '\n';
 
     std::cout << std::endl;
     return 0;

@@ -1,6 +1,11 @@
+// Copyright 2020 Nathaniel Mitchell
+
+#pragma once
+
 #include <iostream>
 #include <memory>
 #include <utility>
+#include <string>
 #include <sstream>
 
 template<typename T>
@@ -206,7 +211,7 @@ class Node {
     }
 
     auto find(const T& data) -> bool {
-        if (data_ == data) { 
+        if (data_ == data) {
             splay();
             return true;
         }
@@ -219,28 +224,7 @@ class Node {
         return found;
     }
 
-    auto to_string() -> std::string {
-        std::stringstream ss;
-        ss << data_;
-        
-
-        if (left_ || right_) {
-            ss << " {";
-            if (left_) {
-                ss << left_->to_string();
-            } else {
-                ss << "-";
-            }
-            ss << " ";
-            if (right_) {
-                ss << right_->to_string();
-            } else {
-                ss << "-";
-            }
-            ss << "}";
-        }
-        return ss.str();
-    }
+    friend std::string std::to_string(const Node<T>&);
 };
 
 template<typename T>
@@ -249,20 +233,8 @@ class SplayTree {
     std::unique_ptr<Node<T>> root;
 
  public:
-    template<typename U>
-    auto insert(U&& data) -> void {
-        if (root) {
-            root->insert(data);
-        } else {
-            root = std::make_unique<Node<T>>(data);
-        }
-    }
-
-    auto to_string() -> std::string {
-        if (root) {
-            return root->to_string();
-        } else {
-            return "";
-        }
-    }
+    auto insert(T data) -> void;
+    friend std::string to_string(const SplayTree<T>&);
 };
+
+#include "SplayTree.hxx"
