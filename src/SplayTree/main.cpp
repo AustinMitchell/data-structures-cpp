@@ -19,7 +19,7 @@ int main() {
     tree.insert(1);
 
     std::cout << "Current tree:\n";
-    std::cout << std::to_string(tree) << '\n';
+    std::cout << tree.to_string() << '\n';
 
     std::cout << std::endl;
     return 0;
