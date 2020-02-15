@@ -214,6 +214,7 @@ class Node {
 
     auto data() -> T& { return  data_; }
 
+    /** Returns the left child if there is a left child, otherwise returns nullopt */
     auto left() -> std::optional<Node<T>*> {
         if (left_) {
             return {left_.get()};
@@ -222,6 +223,7 @@ class Node {
         }
     }
 
+    /** Returns the right child if there is a right child, otherwise returns nullopt */
     auto right() -> std::optional<Node<T>*> {
         if (right_) {
             return {right_.get()};
@@ -230,6 +232,7 @@ class Node {
         }
     }
 
+    /** Returns the parent if there is a parent, otherwise returns nullopt */
     auto parent() -> std::optional<Node<T>*> {
         if (parent_) {
             return {parent_};

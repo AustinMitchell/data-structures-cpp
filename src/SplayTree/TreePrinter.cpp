@@ -46,6 +46,7 @@ typedef struct print_info_ {
 } print_info_t;
 
 
+// saves me an annoying dereference
 static auto left(opt_node node) -> opt_node {
     if (node) {
         return (*node)->left();
@@ -55,62 +56,30 @@ static auto left(opt_node node) -> opt_node {
 }
 
 
+// saves me an annoying dereference
 static auto right(opt_node node) -> opt_node {
-    return node ? (*node)->right() : std::nullopt;
+    if (node) {
+        return (*node)->right();
+    } else {
+        return {std::nullopt};
+    }
 }
 
 
+// saves me an annoying dereference
 static auto data(opt_node node) -> int {
     return (*node)->data();
 }
 
 
-// Find the smallest node of a tree
-static auto find_min(opt_node node) -> opt_node {
-    if (!node) {
-        return std::nullopt;
-    } else if (!left(node)) {
-        return node;
-    } else {
-        return find_min(left(node));
-    }
-}
-
-
-// Find the largest node of a tree
-static auto find_max(opt_node node) -> opt_node {
-    if (!node) {
-        return std::nullopt;
-    } else if (!right(node)) {
-        return node;
-    } else {
-        return find_max(right(node));
-    }
-}
-
-// Search for the node with value equal to elem
-static auto find(int elem, opt_node node) -> opt_node {
-    if (!node) {
-        return std::nullopt;
-    }
-
-    if (elem < data(node)) {
-        return find(elem, left(node));
-    } else if (elem > data(node)) {
-        return find(elem, right(node));
-    } else {
-        return node;
-    }
-}
-
-
+/** Copies a given tree node into our own copy with some additional data. Performs recursive call */
 static auto build_ascii_tree_recursive(opt_node root) -> ascii_ptr {
     if (!root) return {};
 
     auto node = ascii_ptr{};
 
-    node = std::make_unique<asciinode_t>();
-    node->left = build_ascii_tree_recursive(left(root));
+    node        = std::make_unique<asciinode_t>();
+    node->left  = build_ascii_tree_recursive(left(root));
     node->right = build_ascii_tree_recursive(right(root));
 
     if (node->left) {
@@ -121,13 +90,13 @@ static auto build_ascii_tree_recursive(opt_node root) -> ascii_ptr {
         node->right->parent_dir = 1;
     }
 
-    node->label = std::to_string(data(root));
+    node->label  = std::to_string(data(root));
     node->lablen = node->label.size();
 
     return node;
 }
 
-// Copy the tree into the ascii node structre
+/** Copies a given tree node into our own copy with some additional data. Expecting the root of the tree */
 static auto build_ascii_tree(opt_node root) -> ascii_ptr {
     auto node = ascii_ptr{};
 
@@ -139,12 +108,13 @@ static auto build_ascii_tree(opt_node root) -> ascii_ptr {
     return node;
 }
 
-// The following function fills in the lprofile array for the given tree.
-// It assumes that the center of the label of the root of this tree
-// is located at a position (x,y).  It assumes that the edge_length
-// fields have been computed for this tree.
-static void compute_lprofile(print_info_t& pinfo, ascii_ptr& node, int x, int y) {
-    int i, isleft;
+/** The following function fills in the lprofile array for the given tree.
+ * It assumes that the center of the label of the root of this tree
+ * is located at a position (x,y).  It assumes that the edge_length
+ * fields have been computed for this tree. */
+static auto compute_lprofile(print_info_t& pinfo, ascii_ptr& node, int x, int y) -> void {
+    auto i      = int{};
+    auto isleft = int{};
 
     if (!node)
         return;
@@ -164,8 +134,9 @@ static void compute_lprofile(print_info_t& pinfo, ascii_ptr& node, int x, int y)
                      y + node->edge_length + 1);
 }
 
-static void compute_rprofile(print_info_t& pinfo, ascii_ptr& node, int x, int y) {
-    int i, notleft;
+static auto compute_rprofile(print_info_t& pinfo, ascii_ptr& node, int x, int y) -> void {
+    auto i       = int{};
+    auto notleft = int{};
 
     if (!node)
         return;
@@ -187,7 +158,7 @@ static void compute_rprofile(print_info_t& pinfo, ascii_ptr& node, int x, int y)
 
 // This function fills in the edge_length and
 // height fields of the specified tree
-static void compute_edge_lengths(print_info_t& pinfo, ascii_ptr& node) {
+static auto compute_edge_lengths(print_info_t& pinfo, ascii_ptr& node) -> void {
     auto h      = int{};
     auto hmin   = int{};
     auto i      = int{};
@@ -250,7 +221,7 @@ static void compute_edge_lengths(print_info_t& pinfo, ascii_ptr& node) {
 
 // This function prints the given level of the given tree, assuming
 // that the node has the given x cordinate.
-static void print_level(print_info_t& pinfo, ascii_ptr& node, int x, int level) {
+static auto print_level(print_info_t& pinfo, ascii_ptr& node, int x, int level) -> void {
     auto i      = int{};
     auto isleft = int{};
 
@@ -291,8 +262,8 @@ static void print_level(print_info_t& pinfo, ascii_ptr& node, int x, int level) 
     }
 }
 
-// prints ascii tree for given Tree structure
-void print_ascii_tree(opt_node t) {
+/** Prints ascii tree for given tree structure. Expecting the root of a tree. */
+auto print_ascii_tree(opt_node t) -> void {
     auto proot  = ascii_ptr{};
     auto xmin   = int{};
     auto i      = int{};
