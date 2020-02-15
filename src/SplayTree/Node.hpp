@@ -32,7 +32,7 @@ class Node {
      * @return  reference to where this nodes data was moved to
      */
     auto zig() -> Node<T>& {
-        std::cout << "zig\n";
+        //std::cout << "zig\n";
         auto p  = parent_;
 
         std::swap(p->left_, p->right_);
@@ -53,7 +53,7 @@ class Node {
      * @return  reference to where this nodes data was moved to
      */
     auto zag() -> Node<T>& {
-        std::cout << "zag\n";
+        //std::cout << "zag\n";
         auto p  = parent_;
 
         std::swap(p->left_, p->right_);
@@ -74,7 +74,7 @@ class Node {
      * @return  reference to where this nodes data was moved to
      */
     auto zigzig() -> Node<T>& {
-        std::cout << "zigzig\n";
+        //std::cout << "zigzig\n";
         auto p  = parent_;
         auto gp = parent_->parent_;
 
@@ -100,7 +100,7 @@ class Node {
      * @return  reference to where this nodes data was moved to
      */
     auto zagzag() -> Node<T>& {
-        std::cout << "zagzag\n";
+        //std::cout << "zagzag\n";
         auto p  = parent_;
         auto gp = parent_->parent_;
 
@@ -126,7 +126,7 @@ class Node {
      * @return  reference to where this nodes data was moved to
      */
     auto zigzag() -> Node<T>& {
-        std::cout << "zigzag\n";
+        //std::cout << "zigzag\n";
         auto p  = parent_;
         auto gp = parent_->parent_;
 
@@ -149,7 +149,7 @@ class Node {
      * @return  reference to where this nodes data was moved to
      */
     auto zagzig() -> Node<T>& {
-        std::cout << "zagzig\n";
+        //std::cout << "zagzig\n";
         auto p  = parent_;
         auto gp = parent_->parent_;
 
@@ -168,7 +168,7 @@ class Node {
 
 
     auto splay() -> void {
-        std::cout << "splay on node " << data_ << "\n";
+        //std::cout << "splay on node " << data_ << "\n";
         auto p  = parent_;
         if (p) {
             auto gp = parent_->parent_;
@@ -214,9 +214,29 @@ class Node {
 
     auto data() -> T& { return  data_; }
 
-    auto left()     -> std::optional<std::reference_wrapper<Node<T>>> { return left_ ? std::ref(*left_) : std::nullopt; }
-    auto right()    -> std::optional<std::reference_wrapper<Node<T>>> { return right_ ? std::ref(*right_) : std::nullopt; }
-    auto parent()   -> std::optional<std::reference_wrapper<Node<T>>> { return parent_ ? std::ref(*parent_) : std::nullopt; }
+    auto left() -> std::optional<Node<T>*> {
+        if (left_) {
+            return {left_.get()};
+        } else {
+            return {std::nullopt};
+        }
+    }
+
+    auto right() -> std::optional<Node<T>*> {
+        if (right_) {
+            return {right_.get()};
+        } else {
+            return {std::nullopt};
+        }
+    }
+
+    auto parent() -> std::optional<Node<T>*> {
+        if (parent_) {
+            return {parent_};
+        } else {
+            return {std::nullopt};
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////

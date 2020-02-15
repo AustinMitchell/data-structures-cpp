@@ -1,26 +1,33 @@
 // Copyright 2019 Nathaniel Mitchell
 
-#include "SplayTree.hpp"
 #include <iostream>
 #include <string>
+#include <vector>
+#include <algorithm>
 
-int main() {
-    auto tree = SplayTree<int>();
-    tree.insert(1);
-    tree.insert(2);
-    tree.insert(3);
-    tree.insert(4);
-    tree.insert(5);
-    tree.insert(6);
-    tree.insert(7);
-    tree.insert(8);
-    tree.insert(9);
-    tree.insert(0);
-    tree.insert(1);
+#include "SplayTree.hpp"
+#include "TreePrinter.hpp"
 
-    std::cout << "Current tree:\n";
-    std::cout << tree.to_string() << '\n';
+int main(int argc, char *argv[]) {
+    std::srand(time(NULL));
 
-    std::cout << std::endl;
+    auto tree = SplayTree<int>{};
+    auto list = std::vector<int>{};
+
+    int size = argc >= 2 ? std::atoi(argv[1]) : 20;
+
+    for (int i=1; i<=size; i++) {
+        list.push_back(i);
+    }
+
+    std::random_shuffle(list.begin(), list.end());
+
+    for (int i=0; i<list.size(); i++) {
+        //std::cout << "inserting " << list[i] << "...\n";
+        tree.insert(list[i]);
+        //print_ascii_tree(tree.root());
+    }
+    print_ascii_tree(tree.root());
+
     return 0;
 }

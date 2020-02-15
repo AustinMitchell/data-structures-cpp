@@ -28,7 +28,13 @@ class SplayTree {
     // ----------------------- PROPERTIES ----------------------- //
     ////////////////////////////////////////////////////////////////
 
-    auto root() -> std::optional<Node<T>&> { return root_ ? *root_ : std::nullopt; }
+    auto root() -> std::optional<Node<T>*> {
+        if (root_) {
+            return {root_.get()};
+        } else {
+            return {std::nullopt};
+        }
+    }
 
 
     ////////////////////////////////////////////////////////////////

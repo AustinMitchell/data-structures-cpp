@@ -1,5 +1,8 @@
-all: main.cpp SplayTree.hpp Node.hpp
-	clang++ -std=c++2a -O3 main.cpp
+DEPENDENCIES = main.cpp SplayTree.hpp Node.hpp TreePrinter.cpp TreePrinter.hpp
+SOURCE = main.cpp TreePrinter.cpp
 
-debug: main.cpp SplayTree.hpp Node.hpp
-	clang++ -std=c++2a main.cpp -g -DDEBUG
+all: $(DEPENDENCIES)
+	clang++ -Wall -std=c++17 -O3 $(SOURCE)
+
+debug: $(DEPENDENCIES)
+	clang++ -Wall -std=c++17 $(SOURCE) -g -DDEBUG
