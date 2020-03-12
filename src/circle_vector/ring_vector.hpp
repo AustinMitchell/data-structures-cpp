@@ -207,6 +207,7 @@ class ring_vector {
         if (m_size == m_capacity) {
             resize(m_capacity_bits+1);
         }
+
         std::allocator_traits<Allocator>::construct(m_alloc, m_array+m_end, value);
         m_end = (m_end+1) & m_idx_mask;
         m_size++;
@@ -216,6 +217,7 @@ class ring_vector {
         if (m_size == m_capacity) {
             resize(m_capacity_bits+1);
         }
+
         m_begin = (m_begin-1) & m_idx_mask;
         std::allocator_traits<Allocator>::construct(m_alloc, m_array+m_begin, value);
         m_size++;
@@ -226,10 +228,18 @@ class ring_vector {
         m_end = (m_end-1) & m_idx_mask;
         m_size--;
         std::allocator_traits<Allocator>::destroy(m_alloc, m_array+m_end);
+
+        if (m_size <= m_capacity/4 && m_capacity_bits > m_capacity_bits_min) {
+            resize(m_capacity_bits-1);
+        }
     }
     auto pop_front() -> void {
         std::allocator_traits<Allocator>::destroy(m_alloc, m_array+m_begin);
         m_begin = (m_begin+1) & m_idx_mask;
         m_size--;
+
+        if (m_size <= m_capacity/4 && m_capacity_bits > m_capacity_bits_min) {
+            resize(m_capacity_bits-1);
+        }
     }
 };

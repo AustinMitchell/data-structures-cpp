@@ -34,6 +34,7 @@ class Test {
 
 int main() {
     ring_vector<Test> vec;
+    vec.reserve(10);
 
     for (int i=1; i<=5; i++) {
         vec.push_back({i});
@@ -43,7 +44,7 @@ int main() {
     std::cout << "Size:     " << vec.size() << '\n';
     std::cout << "Capacity: " << vec.capacity() << '\n';
 
-    for (;!vec.empty();) {
+    while (!vec.empty()) {
         std::cout << vec[0].val() << '\n';
         vec.pop_front();
     }
