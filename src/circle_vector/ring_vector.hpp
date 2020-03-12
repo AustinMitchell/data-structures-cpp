@@ -117,6 +117,27 @@ class ring_vector {
         m_array = std::allocator_traits<Allocator>::allocate(m_alloc, m_capacity);
     }
 
+    ~ring_vector() {
+        // first destroy all constructed elements
+        if (m_size != 0) {
+            if (m_begin < m_end) {
+                // All elements are contiguous and in order
+                for (size_t idx=m_begin; idx < m_begin+m_size; idx++) {
+                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                }
+            } else {
+                // All elements are not contiguous or in order
+                for (size_t idx=m_begin; idx < m_capacity; idx++) {
+                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                }
+                for (size_t idx=0; idx < m_end; idx++) {
+                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                }
+            }
+        }
+
+        std::allocator_traits<Allocator>::deallocate(m_alloc, m_array, m_capacity);
+    }
 
     ////////////////////////////////////////////////////////////////
     // -------------------- MEMBER FUNCTIONS -------------------- //
@@ -186,7 +207,7 @@ class ring_vector {
         if (m_size == m_capacity) {
             resize(m_capacity_bits+1);
         }
-        m_array[m_end] = value;
+        std::allocator_traits<Allocator>::construct(m_alloc, m_array+m_end, value);
         m_end = (m_end+1) & m_idx_mask;
         m_size++;
         return;
@@ -196,15 +217,19 @@ class ring_vector {
             resize(m_capacity_bits+1);
         }
         m_begin = (m_begin-1) & m_idx_mask;
-        m_array[m_begin] = value;
+        std::allocator_traits<Allocator>::construct(m_alloc, m_array+m_begin, value);
         m_size++;
         return;
     }
 
-    auto pop_back(T value)  -> void {
-        return;
+    auto pop_back()  -> void {
+        m_end = (m_end-1) & m_idx_mask;
+        m_size--;
+        std::allocator_traits<Allocator>::destroy(m_alloc, m_array+m_end);
     }
-    auto pop_front(T value) -> void {
-        return;
+    auto pop_front() -> void {
+        std::allocator_traits<Allocator>::destroy(m_alloc, m_array+m_begin);
+        m_begin = (m_begin+1) & m_idx_mask;
+        m_size--;
     }
 };
