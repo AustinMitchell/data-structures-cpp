@@ -1,4 +1,4 @@
-DEPENDENCIES = main.cpp SplayTree.hpp Node.hpp TreePrinter.cpp TreePrinter.hpp
+DEPENDENCIES = main.cpp splay_tree.hpp splay_tree_node.hpp TreePrinter.cpp TreePrinter.hpp
 SOURCE = main.cpp TreePrinter.cpp
 
 all: $(DEPENDENCIES)

@@ -7,7 +7,7 @@
 #include <memory>
 #include <algorithm>
 
-#include "Node.hpp"
+#include "splay_tree_node.hpp"
 
 #define MAX_HEIGHT 1000
 #define INFINITY (1 << 20)
@@ -15,7 +15,7 @@
 typedef struct asciinode_struct asciinode_t;
 
 // Renaming to reduce gunk
-using opt_node  = std::optional<Node<int>*>;
+using opt_node  = std::optional<splay_tree_node<int>*>;
 using ascii_ptr = std::unique_ptr<asciinode_t>;
 
 // printing tree in ascii

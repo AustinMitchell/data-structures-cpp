@@ -6,13 +6,13 @@
 #include <algorithm>
 #include <chrono>
 
-#include "SplayTree.hpp"
+#include "splay_tree.hpp"
 #include "TreePrinter.hpp"
 
 int main(int argc, char *argv[]) {
     std::srand(static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
 
-    auto tree = SplayTree<int>{};
+    auto tree = splay_tree<int>{};
     auto list = std::vector<int>{};
 
     int size = argc >= 2 ? std::atoi(argv[1]) : 20;

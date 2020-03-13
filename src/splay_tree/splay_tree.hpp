@@ -9,19 +9,19 @@
 #include <sstream>
 #include <optional>
 
-#include "Node.hpp"
+#include "splay_tree_node.hpp"
 #include "ring_vector/ring_vector.hpp"
 
 
 template<typename T>
-class SplayTree {
+class splay_tree {
  private:
 
     ////////////////////////////////////////////////////////////////
     // ------------------------- FIELDS ------------------------- //
     ////////////////////////////////////////////////////////////////
 
-    std::unique_ptr<Node<T>> m_root;
+    std::unique_ptr<splay_tree_node<T>> m_root;
     std::size_t m_size;
 
  public:
@@ -30,10 +30,10 @@ class SplayTree {
     // ---------------------- CONSTRUCTORS ---------------------- //
     ////////////////////////////////////////////////////////////////
 
-    SplayTree(): m_size(0) {}
+    splay_tree(): m_size(0) {}
 
-    ~SplayTree() {
-        auto node_queue = ring_vector<Node<T>*>{m_size};
+    ~splay_tree() {
+        auto node_queue = ring_vector<splay_tree_node<T>*>{m_size};
         if (!m_root) {
             return;
         }
@@ -46,7 +46,7 @@ class SplayTree {
         }
 
         while(!node_queue.empty()) {
-            Node<T> *next = node_queue.pop_front_get();
+            splay_tree_node<T> *next = node_queue.pop_front_get();
             if (next->left_) {
                 node_queue.push_back(next->left_);
             }
@@ -62,7 +62,7 @@ class SplayTree {
     // ----------------------- PROPERTIES ----------------------- //
     ////////////////////////////////////////////////////////////////
 
-    auto root() -> std::optional<Node<T>*> {
+    auto root() -> std::optional<splay_tree_node<T>*> {
         if (m_root) {
             return {m_root.get()};
         } else {
@@ -83,7 +83,7 @@ class SplayTree {
         if (m_root) {
             m_root->insert(std::forward<U>(data));
         } else {
-            m_root = std::make_unique<Node<T>>(std::forward<U>(data));
+            m_root = std::make_unique<splay_tree_node<T>>(std::forward<U>(data));
         }
     }
 

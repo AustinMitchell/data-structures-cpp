@@ -12,17 +12,17 @@
 
 
 template<typename T>
-class Node {
+class splay_tree_node {
  private:
-    template<typename U> friend class SplayTree;
+    template<typename U> friend class splay_tree;
 
     ////////////////////////////////////////////////////////////////
     // ------------------------- FIELDS ------------------------- //
     ////////////////////////////////////////////////////////////////
     T       data_;
-    Node<T> *parent_;
-    Node<T> *left_;
-    Node<T> *right_;
+    splay_tree_node<T> *parent_;
+    splay_tree_node<T> *left_;
+    splay_tree_node<T> *right_;
 
 
     ////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ class Node {
      * Rotates right assuming this node is the left child of parent
      * @return  reference to where this nodes data was moved to
      */
-    auto zig() -> Node<T>& {
+    auto zig() -> splay_tree_node<T>& {
         //std::cout << "zig\n";
         auto p  = parent_;
 
@@ -54,7 +54,7 @@ class Node {
      * Rotates left assuming this node is the right child of parent
      * @return  reference to where this nodes data was moved to
      */
-    auto zag() -> Node<T>& {
+    auto zag() -> splay_tree_node<T>& {
         //std::cout << "zag\n";
         auto p  = parent_;
 
@@ -75,7 +75,7 @@ class Node {
      * Performs two right rotations assuming this node is left-left child of grandparent
      * @return  reference to where this nodes data was moved to
      */
-    auto zigzig() -> Node<T>& {
+    auto zigzig() -> splay_tree_node<T>& {
         //std::cout << "zigzig\n";
         auto p  = parent_;
         auto gp = parent_->parent_;
@@ -101,7 +101,7 @@ class Node {
      * Performs two left rotations assuming this node is right-right child of grandparent
      * @return  reference to where this nodes data was moved to
      */
-    auto zagzag() -> Node<T>& {
+    auto zagzag() -> splay_tree_node<T>& {
         //std::cout << "zagzag\n";
         auto p  = parent_;
         auto gp = parent_->parent_;
@@ -127,7 +127,7 @@ class Node {
      * Performs a right then left rotation assuming this node is right-left child of grandparent
      * @return  reference to where this nodes data was moved to
      */
-    auto zigzag() -> Node<T>& {
+    auto zigzag() -> splay_tree_node<T>& {
         //std::cout << "zigzag\n";
         auto p  = parent_;
         auto gp = parent_->parent_;
@@ -150,7 +150,7 @@ class Node {
      * Performs a left then right rotation assuming this node is left-right child of grandparent
      * @return  reference to where this nodes data was moved to
      */
-    auto zagzig() -> Node<T>& {
+    auto zagzig() -> splay_tree_node<T>& {
         //std::cout << "zagzig\n";
         auto p  = parent_;
         auto gp = parent_->parent_;
@@ -217,7 +217,7 @@ class Node {
     auto data() -> T& { return  data_; }
 
     /** Returns the left child if there is a left child, otherwise returns nullopt */
-    auto left() -> std::optional<Node<T>*> {
+    auto left() -> std::optional<splay_tree_node<T>*> {
         if (left_) {
             return {left_};
         } else {
@@ -226,7 +226,7 @@ class Node {
     }
 
     /** Returns the right child if there is a right child, otherwise returns nullopt */
-    auto right() -> std::optional<Node<T>*> {
+    auto right() -> std::optional<splay_tree_node<T>*> {
         if (right_) {
             return {right_};
         } else {
@@ -235,7 +235,7 @@ class Node {
     }
 
     /** Returns the parent if there is a parent, otherwise returns nullopt */
-    auto parent() -> std::optional<Node<T>*> {
+    auto parent() -> std::optional<splay_tree_node<T>*> {
         if (parent_) {
             return {parent_};
         } else {
@@ -249,7 +249,7 @@ class Node {
     ////////////////////////////////////////////////////////////////
 
     template<typename U>
-    Node(U&& data) : data_{std::forward<U>(data)}, parent_(nullptr), left_(nullptr), right_(nullptr) {}
+    splay_tree_node(U&& data) : data_{std::forward<U>(data)}, parent_(nullptr), left_(nullptr), right_(nullptr) {}
 
 
     ////////////////////////////////////////////////////////////////
@@ -258,13 +258,13 @@ class Node {
 
     template<typename U>
     auto insert(U&& data) -> void {
-        Node<T> **child = (data < data_) ? &left_
+        splay_tree_node<T> **child = (data < data_) ? &left_
                                          : &right_;
 
         if (*child) {
             (*child)->insert(data);
         } else {
-            *child = new Node<T>(data);
+            *child = new splay_tree_node<T>(data);
             (*child)->parent_ = this;
             (*child)->splay();
         }
