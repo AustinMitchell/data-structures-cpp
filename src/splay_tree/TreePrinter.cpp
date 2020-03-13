@@ -15,7 +15,7 @@
 typedef struct asciinode_struct asciinode_t;
 
 // Renaming to reduce gunk
-using opt_node  = std::optional<splay_tree_node<int>*>;
+using opt_node  = std::optional<const splay_tree_node<int>*>;
 using ascii_ptr = std::unique_ptr<asciinode_t>;
 
 // printing tree in ascii

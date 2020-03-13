@@ -14,4 +14,4 @@ typedef struct asciinode_struct asciinode_t;
 typedef struct print_info_ print_info_t;
 
 // prints ascii tree for given Tree structure
-void print_ascii_tree(std::optional<splay_tree_node<int>*> root);
+void print_ascii_tree(std::optional<const splay_tree_node<int>*> root);

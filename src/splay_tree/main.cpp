@@ -24,9 +24,9 @@ int main(int argc, char *argv[]) {
     std::random_shuffle(list.begin(), list.end());
 
     for (int i=0; i<list.size(); i++) {
-        //std::cout << "inserting " << list[i] << "...\n";
+        std::cout << "inserting " << list[i] << "...\n";
         tree.insert(list[i]);
-        //print_ascii_tree(tree.root());
+        print_ascii_tree(tree.root());
     }
     print_ascii_tree(tree.root());
 
