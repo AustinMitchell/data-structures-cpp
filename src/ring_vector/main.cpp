@@ -2,6 +2,7 @@
 
 #include "ring_vector.hpp"
 #include <iostream>
+#include <utility>
 
 class Test {
     int * allocated;
@@ -85,6 +86,19 @@ int main() {
     std::cout << "Capacity: " << vec.capacity() << "\n";
 
     std::cout << "\n";
+
+    std::cout << "Removing 3 elements from vector and shrinking...\n";
+    for (int i=1; i<=3; i++) {
+        vec.pop_back();
+    }
+    vec.shrink_to_fit();
+
+    std::cout << "Size:     " << vec.size() << "\n";
+    std::cout << "Capacity: " << vec.capacity() << "\n";
+
+
+
+    std::cout << "\n";
     std::cout << "Clearing and shrinking vector...\n";
     vec.clear();
     vec.shrink_to_fit();
@@ -117,5 +131,55 @@ int main() {
     for(auto& v: vec) {
         std::cout << v.val() << " ";
     }
+    std::cout << "\n\n";
+
+    std::cout << "Copying vector\n";
+    auto copyvec = vec;
+
+    std::cout << "Values: ";
+    for(auto& v: copyvec) {
+        std::cout << v.val() << " ";
+    }
     std::cout << "\n";
+    std::cout << "Original Vector Size:     " << vec.size() << "\n";
+    std::cout << "Original Vector Capacity: " << vec.capacity() << "\n";
+
+    std::cout << "\n";
+    std::cout << "Moving vector\n";
+    auto movevec = std::move(vec);
+
+    std::cout << "Values: ";
+    for(auto& v: movevec) {
+        std::cout << v.val() << " ";
+    }
+    std::cout << "\n";
+    std::cout << "Original Vector Size:     " << vec.size() << "\n";
+    std::cout << "Original Vector Capacity: " << vec.capacity() << "\n";
+
+    std::cout << "\n";
+    std::cout << "Copy-assigning vector\n";
+    auto copyassvec = decltype(copyvec){};
+    copyassvec      = copyvec;
+
+    std::cout << "Values: ";
+    for(auto& v: copyassvec) {
+        std::cout << v.val() << " ";
+    }
+    std::cout << "\n";
+    std::cout << "Original Vector Size:     " << copyvec.size() << "\n";
+    std::cout << "Original Vector Capacity: " << copyvec.capacity() << "\n";
+
+    std::cout << "\n";
+    std::cout << "Moving vector\n";
+    auto moveassvec = decltype(copyvec){};
+    moveassvec      = std::move(copyvec);
+
+    std::cout << "Values: ";
+    for(auto& v: moveassvec) {
+        std::cout << v.val() << " ";
+    }
+    std::cout << "\n";
+    std::cout << "Original Vector Size:     " << copyvec.size() << "\n";
+    std::cout << "Original Vector Capacity: " << copyvec.capacity() << "\n";
+
 }

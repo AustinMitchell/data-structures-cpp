@@ -58,6 +58,28 @@ class ring_vector {
         m_idx_mask      = new_idx_mask;
     }
 
+    auto destroy() -> void {
+        // first destroy all constructed elements
+        if (m_size != 0) {
+            if (m_begin < m_end) {
+                // All elements are contiguous and in order
+                for (size_t idx=m_begin; idx < m_begin+m_size; idx++) {
+                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                }
+            } else {
+                // All elements are not contiguous or in order
+                for (size_t idx=m_begin; idx < m_capacity; idx++) {
+                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                }
+                for (size_t idx=0; idx < m_end; idx++) {
+                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                }
+            }
+        }
+
+        std::allocator_traits<Allocator>::deallocate(m_alloc, m_array, m_capacity);
+    }
+
  public:
     class iterator {
      private:
@@ -116,11 +138,20 @@ class ring_vector {
     using pointer           = value_type*;
     using const_pointer     = const value_type*;
 
-    ring_vector(): m_begin(0), m_end(0), m_size(0), m_capacity(4), m_capacity_bits(2), m_idx_mask((1<<2)-1) {
+    ring_vector():  m_begin(0),
+                    m_end(0),
+                    m_size(0),
+                    m_capacity(4),
+                    m_capacity_bits(2),
+                    m_idx_mask((1<<2)-1) {
+
         m_array = std::allocator_traits<Allocator>::allocate(m_alloc, m_capacity);
     }
 
-    ring_vector(size_t reserve_space): m_begin(0), m_end(0), m_size(0) {
+    ring_vector(size_t reserve_space):  m_begin(0),
+                                        m_end(0),
+                                        m_size(0) {
+
         m_capacity_bits = 2;
         while((1<<m_capacity_bits) < reserve_space) {
             m_capacity_bits++;
@@ -131,26 +162,47 @@ class ring_vector {
         m_array = std::allocator_traits<Allocator>::allocate(m_alloc, m_capacity);
     }
 
-    ~ring_vector() {
-        // first destroy all constructed elements
+    ring_vector(const ring_vector& other): m_begin(other.m_begin),
+                                           m_end(other.m_end),
+                                           m_size(other.m_size),
+                                           m_capacity(other.m_capacity),
+                                           m_capacity_bits(other.m_capacity_bits),
+                                           m_idx_mask(other.m_idx_mask) {
+
+        m_array = std::allocator_traits<Allocator>::allocate(m_alloc, m_capacity);
+
         if (m_size != 0) {
             if (m_begin < m_end) {
                 // All elements are contiguous and in order
                 for (size_t idx=m_begin; idx < m_begin+m_size; idx++) {
-                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                    std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
                 }
             } else {
                 // All elements are not contiguous or in order
                 for (size_t idx=m_begin; idx < m_capacity; idx++) {
-                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                    std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
                 }
                 for (size_t idx=0; idx < m_end; idx++) {
-                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                    std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
                 }
             }
         }
+    }
 
-        std::allocator_traits<Allocator>::deallocate(m_alloc, m_array, m_capacity);
+    ring_vector(ring_vector&& other): m_begin(other.m_begin),
+                                      m_end(other.m_end),
+                                      m_size(other.m_size),
+                                      m_capacity(other.m_capacity),
+                                      m_capacity_bits(other.m_capacity_bits),
+                                      m_idx_mask(other.m_idx_mask) {
+
+        m_array = other.m_array;
+        std::memset(&other, 0, sizeof(other));
+
+    }
+
+    ~ring_vector() {
+        destroy();
     }
 
     ////////////////////////////////////////////////////////////////
@@ -381,5 +433,59 @@ class ring_vector {
         m_size++;
 
         return {*this, pos};
+    }
+
+
+    /* ========================================================== */
+    /* ========================  OPERATORS  ===================== */
+
+    auto operator=(const ring_vector& other) -> ring_vector& {
+
+        destroy();
+
+        m_begin         = other.m_begin;
+        m_end           = other.m_end;
+        m_size          = other.m_size;
+        m_capacity      = other.m_capacity;
+        m_capacity_bits = other.m_capacity_bits;
+        m_idx_mask      = other.m_idx_mask;
+
+        m_array = std::allocator_traits<Allocator>::allocate(m_alloc, m_capacity);
+
+        if (m_size != 0) {
+            if (m_begin < m_end) {
+                // All elements are contiguous and in order
+                for (size_t idx=m_begin; idx < m_begin+m_size; idx++) {
+                    std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
+                }
+            } else {
+                // All elements are not contiguous or in order
+                for (size_t idx=m_begin; idx < m_capacity; idx++) {
+                    std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
+                }
+                for (size_t idx=0; idx < m_end; idx++) {
+                    std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
+                }
+            }
+        }
+
+        return *this;
+    }
+
+    auto operator=(ring_vector&& other) -> ring_vector& {
+
+        destroy();
+
+        m_begin         = other.m_begin;
+        m_end           = other.m_end;
+        m_size          = other.m_size;
+        m_capacity      = other.m_capacity;
+        m_capacity_bits = other.m_capacity_bits;
+        m_idx_mask      = other.m_idx_mask;
+
+        m_array = other.m_array;
+        std::memset(&other, 0, sizeof(other));
+
+        return *this;
     }
 };
