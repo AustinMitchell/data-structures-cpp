@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <cstring>
 #include <vector>
+#include <algorithm>
+
 
 using std::size_t;
 
@@ -16,7 +18,6 @@ class ring_vector {
                 m_size,
                 m_capacity,
                 m_capacity_bits,
-                m_capacity_bits_min,
                 m_idx_mask;
     T*          m_array;
 
@@ -58,8 +59,8 @@ class ring_vector {
  public:
     class iterator {
      private:
-        size_t m_idx;
         ring_vector<T>& m_array;
+        size_t m_idx;
 
      public:
         using difference_type   = size_t;
@@ -82,8 +83,8 @@ class ring_vector {
 
     class const_iterator {
      private:
-        size_t m_idx;
         const ring_vector<T>& m_array;
+        size_t m_idx;
 
      public:
         using difference_type   = size_t;
@@ -113,7 +114,18 @@ class ring_vector {
     using pointer           = value_type*;
     using const_pointer     = const value_type*;
 
-    ring_vector(): m_begin(0), m_end(0), m_size(0), m_capacity(4), m_capacity_bits(2), m_capacity_bits_min(2), m_idx_mask((1<<2)-1) {
+    ring_vector(): m_begin(0), m_end(0), m_size(0), m_capacity(4), m_capacity_bits(2), m_idx_mask((1<<2)-1) {
+        m_array = std::allocator_traits<Allocator>::allocate(m_alloc, m_capacity);
+    }
+
+    ring_vector(size_t reserve_space): m_begin(0), m_end(0), m_size(0) {
+        m_capacity_bits = 2;
+        while((1<<m_capacity_bits) < reserve_space) {
+            m_capacity_bits++;
+        }
+        m_capacity = 1 << m_capacity_bits;
+        m_idx_mask = m_capacity - 1;
+
         m_array = std::allocator_traits<Allocator>::allocate(m_alloc, m_capacity);
     }
 
@@ -146,100 +158,162 @@ class ring_vector {
     /* ========================================================== */
     /* ====================  ELEMENT ACCESS  ==================== */
 
+    /** Returns reference to an element at the given position */
     auto at(size_type pos)       -> reference       { return m_array[(pos + m_begin) & m_idx_mask]; }
+    /** Returns const reference to an element at the given position */
     auto at(size_type pos) const -> const_reference { return m_array[(pos + m_begin) & m_idx_mask]; }
 
+    /** Returns reference to an element at the given position */
     auto operator[](size_type pos)       -> reference       { return m_array[(pos + m_begin) & m_idx_mask]; }
+    /** Returns const reference to an element at the given position */
     auto operator[](size_type pos) const -> const_reference { return m_array[(pos + m_begin) & m_idx_mask]; }
 
+    /** Returns reference to first element in vector */
     auto front() -> reference               { return m_array[m_begin]; }
+    /** Returns const reference to first element in vector */
     auto front() const -> const_reference   { return m_array[m_begin]; }
 
+    /** Returns reference to last element in vector */
     auto back() -> reference               { return m_array[(m_begin+m_size) & m_idx_mask]; }
+    /** Returns const reference to first element in vector */
     auto back() const -> const_reference   { return m_array[(m_begin+m_size) & m_idx_mask]; }
 
 
     /* ========================================================== */
     /* =======================  ITERATORS  ====================== */
 
+    /** Returns forward iterator on this vector starting at front */
     auto begin() -> iterator { return {*this, 0}; }
+    /** Returns end position of forward iterator */
     auto end()   -> iterator { return {*this, m_size}; }
 
+    /** Returns const forward iterator on this vector starting at front */
     auto begin() const -> const_iterator { return {*this, 0}; }
+    /** Returns end position of const forward iterator */
     auto end()   const -> const_iterator { return {*this, m_size}; }
 
+    /** Returns const forward iterator on this vector starting at front */
     auto cbegin() const -> const_iterator { return {*this, 0}; }
+    /** Returns end position of const forward iterator */
     auto cend()   const -> const_iterator { return {*this, m_size}; }
 
 
     /* ========================================================== */
     /* ========================  CAPACITY  ====================== */
 
-    auto empty() const -> bool { return m_size==0; }
+    /** Returns true if size of vector is 0 */
+    auto empty()    const -> bool   { return m_size==0; }
 
-    auto size() const -> size_t { return m_size; }
+    /** Returns number of elements being used in array */
+    auto size()     const -> size_t { return m_size; }
 
+    /** Returns number of reserved array elements */
     auto capacity() const -> size_t { return m_capacity; }
 
+    /** Causes the vector to reallocate space, rounded up to the neareast power of 2 and copy over currently existing elements.
+     * Will do nothing if the new capacity is smaller than size. This operation could increase or reduce capacity.
+     * */
     auto reserve(size_t capacity) -> void {
-        size_t new_capacity_bits_min = 2;
-        while((1<<new_capacity_bits_min) < capacity) {
-            new_capacity_bits_min++;
+        if (capacity < m_size) {
+            return;
         }
-        resize(new_capacity_bits_min);
-        m_capacity_bits_min = new_capacity_bits_min;
-        return;
+        size_t new_capacity_bits = 2;
+        while((1<<new_capacity_bits) < capacity) {
+            new_capacity_bits++;
+        }
+        if (new_capacity_bits != m_capacity_bits) {
+            resize(new_capacity_bits);
+        }
     }
 
+    /** Attempts to return memory to the system by shrinking array capacity, to a minimum of 4. Equivalent to calling reserve(size) */
     auto shrink_to_fit() -> void {
-        return;
+        reserve(std::max<size_t>(m_size, 4));
     }
 
 
     /* ========================================================== */
     /* ========================  MODIFIERS  ===================== */
 
+    /** Remove all elements from the vector. */
     auto clear() -> void {
-        return;
+        if (m_size != 0) {
+            if (m_begin < m_end) {
+                // All elements are contiguous and in order
+                for (size_t idx=m_begin; idx < m_begin+m_size; idx++) {
+                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                }
+            } else {
+                // All elements are not contiguous or in order
+                for (size_t idx=m_begin; idx < m_capacity; idx++) {
+                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                }
+                for (size_t idx=0; idx < m_end; idx++) {
+                    std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
+                }
+            }
+        }
+
+        m_begin = 0;
+        m_end   = 0;
+        m_size  = 0;
     }
 
-    auto push_back(T value)  -> void {
+    /** Place one element at the end of the vector. May invoke resizing if capacity is reached. */
+    template<typename U=T>
+    auto push_back(U&& value)  -> void {
         if (m_size == m_capacity) {
             resize(m_capacity_bits+1);
         }
 
-        std::allocator_traits<Allocator>::construct(m_alloc, m_array+m_end, value);
+        std::allocator_traits<Allocator>::construct(m_alloc, m_array+m_end, std::forward<U>(value));
         m_end = (m_end+1) & m_idx_mask;
         m_size++;
-        return;
     }
-    auto push_front(T value) -> void {
+
+    /** Place one element at the beginning of the vector. May invoke resizing if capacity is reached. */
+    template<typename U=T>
+    auto push_front(U&& value) -> void {
         if (m_size == m_capacity) {
             resize(m_capacity_bits+1);
         }
 
         m_begin = (m_begin-1) & m_idx_mask;
-        std::allocator_traits<Allocator>::construct(m_alloc, m_array+m_begin, value);
+        std::allocator_traits<Allocator>::construct(m_alloc, m_array+m_begin, std::forward<U>(value));
         m_size++;
-        return;
     }
 
+    /** Remove one element from the end of the vector */
     auto pop_back()  -> void {
         m_end = (m_end-1) & m_idx_mask;
         m_size--;
         std::allocator_traits<Allocator>::destroy(m_alloc, m_array+m_end);
-
-        if (m_size <= m_capacity/4 && m_capacity_bits > m_capacity_bits_min) {
-            resize(m_capacity_bits-1);
-        }
     }
+
+    /** Remove one element from the end of the vector and return the element */
+    auto pop_back_get()  -> T {
+        m_end = (m_end-1) & m_idx_mask;
+        m_size--;
+
+        T temp = std::move(m_array[m_end]);
+        std::allocator_traits<Allocator>::destroy(m_alloc, m_array+m_end);
+        return temp;
+    }
+
+    /** Remove one element from the beginning of the vector */
     auto pop_front() -> void {
         std::allocator_traits<Allocator>::destroy(m_alloc, m_array+m_begin);
         m_begin = (m_begin+1) & m_idx_mask;
         m_size--;
+    }
 
-        if (m_size <= m_capacity/4 && m_capacity_bits > m_capacity_bits_min) {
-            resize(m_capacity_bits-1);
-        }
+    /** Remove one element from the begninning of the vector and return the element */
+    auto pop_front_get() -> T {
+        T temp = std::move(m_array[m_begin]);
+        std::allocator_traits<Allocator>::destroy(m_alloc, m_array+m_begin);
+
+        m_begin = (m_begin+1) & m_idx_mask;
+        m_size--;
+        return temp;
     }
 };
