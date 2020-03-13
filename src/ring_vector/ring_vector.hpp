@@ -77,7 +77,7 @@ class ring_vector {
         auto operator==(iterator other) const -> bool { return m_idx == other.m_idx; }
         auto operator!=(iterator other) const -> bool { return !(*this == other); }
 
-        auto operator* () -> reference { return m_array[m_idx]; }
+        auto operator* () -> reference { return  m_array[m_idx]; }
         auto operator->() -> pointer   { return &m_array[m_idx]; }
     };
 
@@ -101,7 +101,7 @@ class ring_vector {
         auto operator==(iterator other) const -> bool { return m_idx == other.m_idx; }
         auto operator!=(iterator other) const -> bool { return !(*this == other); }
 
-        auto operator* () -> reference { return m_array[m_idx]; }
+        auto operator* () -> reference { return  m_array[m_idx]; }
         auto operator->() -> pointer   { return &m_array[m_idx]; }
     };
 
@@ -315,5 +315,69 @@ class ring_vector {
         m_begin = (m_begin+1) & m_idx_mask;
         m_size--;
         return temp;
+    }
+
+    template<typename U=T>
+    auto insert(size_t pos, U&& value)  -> iterator {
+        if (m_size == 0) {
+            push_back(std::forward<U>(value));
+            return begin();
+        } else if (m_size == m_capacity) {
+            resize(m_capacity_bits+1);
+        }
+
+        size_t arr_idx = 0;
+
+        // Selects which direction to offset. This makes it so worst case you only ever move half the elements of the array.
+        if (pos <= m_size/2) {
+            // Push everything at pos left
+
+            m_begin = (m_begin - 1) & m_idx_mask;
+            arr_idx = (pos + m_begin) & m_idx_mask;
+
+            if (m_begin <= arr_idx) {
+                // All elements to be shifted contiguous and in order
+                for (size_t idx=m_begin; idx < arr_idx; idx++) {
+                    m_array[idx] = std::move(m_array[idx+1]);
+                }
+            } else {
+                // All elements to be shifted are not contiguous or in order
+                for (size_t idx=m_begin; idx < m_capacity-1; idx++) {
+                    m_array[idx] = std::move(m_array[idx+1]);
+                }
+                m_array[m_capacity-1] = std::move(m_array[0]);
+                for (size_t idx=0; idx < arr_idx; idx++) {
+                    m_array[idx] = std::move(m_array[idx+1]);
+                }
+            }
+
+        } else {
+            // Push everything at pos right
+
+            arr_idx = (pos + m_begin) & m_idx_mask;
+
+            if (m_end >= arr_idx) {
+                // All elements to be shifted contiguous and in order
+                for (size_t idx=m_end; idx > arr_idx; idx--) {
+                    m_array[idx] = std::move(m_array[idx-1]);
+                }
+            } else {
+                // All elements to be shifted are not contiguous or in order
+                for (size_t idx=m_end; idx > 0; idx--) {
+                    m_array[idx] = std::move(m_array[idx-1]);
+                }
+                m_array[0] = std::move(m_array[m_capacity-1]);
+                for (size_t idx=m_capacity-1; idx > arr_idx; idx--) {
+                    m_array[idx] = std::move(m_array[idx-1]);
+                }
+            }
+
+            m_end = (m_end + 1) & m_idx_mask;
+        }
+
+        std::allocator_traits<Allocator>::construct(m_alloc, m_array+arr_idx, std::forward<U>(value));
+        m_size++;
+
+        return {*this, pos};
     }
 };

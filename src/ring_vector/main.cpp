@@ -90,4 +90,32 @@ int main() {
     vec.shrink_to_fit();
     std::cout << "Size:     " << vec.size() << "\n";
     std::cout << "Capacity: " << vec.capacity() << "\n";
+
+    std::cout << "\n";
+    std::cout << "Using insert() to insert 1 at the beginning, 2 at the end, and 3 in the middle of vector of 0's...\n";
+
+    for (int i=0; i<10; i++) {
+        vec.push_back({0});
+    }
+
+    vec.insert(0, {1});
+    std::cout << "Values: ";
+    for(auto& v: vec) {
+        std::cout << v.val() << " ";
+    }
+    std::cout << "\n";
+
+    vec.insert(11, {1});
+    std::cout << "Values: ";
+    for(auto& v: vec) {
+        std::cout << v.val() << " ";
+    }
+    std::cout << "\n";
+
+    vec.insert(6, {1});
+    std::cout << "Values: ";
+    for(auto& v: vec) {
+        std::cout << v.val() << " ";
+    }
+    std::cout << "\n";
 }
