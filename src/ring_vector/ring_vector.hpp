@@ -1,5 +1,7 @@
 // Copyright 2020 Nathaniel Mitchell
 
+#pragma once
+
 #include <memory>
 #include <cstddef>
 #include <cstring>
