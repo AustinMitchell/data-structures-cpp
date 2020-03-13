@@ -309,7 +309,7 @@ class splay_tree {
             auto parent  =  m_root->m_parent;
             while (*current != nullptr) {
                 height++;
-                if (data < (*current)->m_data) {
+                if (data < (*current)->data()) {
                     parent  = *current;
                     current = &(*current)->m_left;
                 } else {
@@ -328,10 +328,10 @@ class splay_tree {
         auto height  = size_t{0};
 
         while (current != nullptr) {
-            if (data == current->m_data) {
+            if (data == current->data()) {
                 splay(current, height, splay_type{});
                 return true;
-            } else if (data < current->m_data) {
+            } else if (data < current->data()) {
                 current = current->m_left;
             } else {
                 current = current->m_right;
@@ -341,5 +341,14 @@ class splay_tree {
 
         return false;
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // ------------------------ ITERATORS ----------------------- //
+    ////////////////////////////////////////////////////////////////
+
+    class iterator {
+
+    };
 
 };
