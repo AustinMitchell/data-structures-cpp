@@ -14,13 +14,15 @@
 template<typename T>
 class Node {
  private:
+    template<typename U> friend class SplayTree;
 
     ////////////////////////////////////////////////////////////////
     // ------------------------- FIELDS ------------------------- //
     ////////////////////////////////////////////////////////////////
-    T                        data_;
-    Node<T>                 *parent_;
-    std::unique_ptr<Node<T>> left_, right_;
+    T       data_;
+    Node<T> *parent_;
+    Node<T> *left_;
+    Node<T> *right_;
 
 
     ////////////////////////////////////////////////////////////////
@@ -173,21 +175,21 @@ class Node {
         if (p) {
             auto gp = parent_->parent_;
             if (gp) {
-                if (gp->left_.get() == p) {
-                    if (p->left_.get() == this) {
+                if (gp->left_ == p) {
+                    if (p->left_ == this) {
                         zigzig().splay();
                     } else {
                         zagzig().splay();
                     }
                 } else {
-                    if (p->left_.get() == this) {
+                    if (p->left_ == this) {
                         zigzag().splay();
                     } else {
                         zagzag().splay();
                     }
                 }
             } else {
-                if (p->left_.get() == this) {
+                if (p->left_ == this) {
                     zig();
                 } else {
                     zag();
@@ -217,7 +219,7 @@ class Node {
     /** Returns the left child if there is a left child, otherwise returns nullopt */
     auto left() -> std::optional<Node<T>*> {
         if (left_) {
-            return {left_.get()};
+            return {left_};
         } else {
             return {std::nullopt};
         }
@@ -226,7 +228,7 @@ class Node {
     /** Returns the right child if there is a right child, otherwise returns nullopt */
     auto right() -> std::optional<Node<T>*> {
         if (right_) {
-            return {right_.get()};
+            return {right_};
         } else {
             return {std::nullopt};
         }
@@ -247,7 +249,7 @@ class Node {
     ////////////////////////////////////////////////////////////////
 
     template<typename U>
-    Node(U&& data) : data_{std::forward<U>(data)}, parent_(nullptr) {}
+    Node(U&& data) : data_{std::forward<U>(data)}, parent_(nullptr), left_(nullptr), right_(nullptr) {}
 
 
     ////////////////////////////////////////////////////////////////
@@ -256,13 +258,13 @@ class Node {
 
     template<typename U>
     auto insert(U&& data) -> void {
-        std::unique_ptr<Node<T>> *child = (data < data_) ? &left_
-                                                         : &right_;
+        Node<T> **child = (data < data_) ? &left_
+                                         : &right_;
 
         if (*child) {
             (*child)->insert(data);
         } else {
-            *child = std::make_unique<Node<T>>(data);
+            *child = new Node<T>(data);
             (*child)->parent_ = this;
             (*child)->splay();
         }
