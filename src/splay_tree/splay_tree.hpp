@@ -19,14 +19,14 @@ using std::size_t;
 struct fullsplay {};
 struct semisplay {};
 
-template<typename T, typename splay_type>
+template<typename T, typename splay_type, typename Allocator>
 class splay_tree;
 
 // Offering type name option for semisplay tree
-template<typename T>
-using semisplay_tree = splay_tree<T, semisplay>;
+template<typename T, typename Allocator>
+using semisplay_tree = splay_tree<T, semisplay, Allocator>;
 
-template<typename T, typename splay_type=fullsplay>
+template<typename T, typename splay_type=fullsplay, typename Allocator = std::allocator<T>>
 class splay_tree {
     static_assert(std::disjunction<
                         std::is_same<splay_type, fullsplay>,
@@ -236,18 +236,17 @@ class splay_tree {
         }
     }
 
-    auto splaylargest(const T& data) -> void {
-        auto current    = m_root;
-        auto height     = size_t{0};
-        while (current->m_right) {
-            current = current->m_right;
-            height++;
-        }
-        splay(current, height, splay_type{});
-    }
-
 
  public:
+
+    using value_type        = T;
+    using allocator_type    = Allocator;
+    using size_type         = size_t;
+    using difference_type   = std::ptrdiff_t;
+    using reference         = value_type&;
+    using const_reference   = const value_type&;
+    using pointer           = value_type*;
+    using const_pointer     = const value_type*;
 
     ////////////////////////////////////////////////////////////////
     // ---------------------- CONSTRUCTORS ---------------------- //
@@ -256,7 +255,8 @@ class splay_tree {
     splay_tree(): m_size(0), m_root(nullptr) {}
 
     ~splay_tree() {
-        auto node_queue = ring_vector<stnode*>{m_size};
+        // Most nodes that need to be stored in a breadth first search is half of the total nodes
+        auto node_queue = ring_vector<stnode*>{m_size/2 + 2};
         if (!m_root) {
             return;
         }
@@ -280,15 +280,31 @@ class splay_tree {
     // ----------------------- PROPERTIES ----------------------- //
     ////////////////////////////////////////////////////////////////
 
-    auto root() -> std::optional<stnode*> {
-        if (m_root) {
-            return {m_root};
-        } else {
-            return {std::nullopt};
-        }
+    auto root() -> stnode const* {
+        return m_root;
     }
 
     auto size() const -> size_t { return m_size; }
+
+    auto largest_no_splay() const -> stnode const& {
+        auto current    = m_root;
+        auto height     = size_t{0};
+        while (current->m_right) {
+            current = current->m_right;
+            height++;
+        }
+        return *current;
+    }
+
+    auto smallest_no_splay() const -> stnode const&  {
+        auto current    = m_root;
+        auto height     = size_t{0};
+        while (current->m_left) {
+            current = current->m_left;
+            height++;
+        }
+        return *current;
+    }
 
 
     ////////////////////////////////////////////////////////////////
@@ -342,13 +358,96 @@ class splay_tree {
         return false;
     }
 
+    auto largest() -> stnode const& {
+        auto current    = m_root;
+        auto height     = size_t{0};
+        while (current->m_right) {
+            current = current->m_right;
+            height++;
+        }
+        splay(current, height, splay_type{});
+        return *current;
+    }
+
+    auto smallest() -> stnode const&  {
+        auto current    = m_root;
+        auto height     = size_t{0};
+        while (current->m_left) {
+            current = current->m_left;
+            height++;
+        }
+        splay(current, height, splay_type{});
+        return *current;
+    }
+
 
     ////////////////////////////////////////////////////////////////
     // ------------------------ ITERATORS ----------------------- //
     ////////////////////////////////////////////////////////////////
 
+    /** Iterator which performs an in-order traversal with an O(1) memory footprint. Since tree nodes are immutable
+     * due to maintaining a sorted order property, only a const iterator is provided. */
     class iterator {
+     private:
+        stnode const* m_current;
 
+        auto next() -> void {
+            if (!m_current) { return; }
+
+            if (m_current->right()) {
+                // If we have a right child after visiting this node, move to the smallest value of that subtree
+                m_current = m_current->right();
+                while(m_current->left()) {
+                    m_current = m_current->left();
+                }
+            } else {
+                // Otherwise, keep going up the tree until we reach the first parent to whom current is an element
+                // of its left subtree
+                auto prev {m_current};
+                m_current = m_current->parent();
+
+                while (m_current && (prev == m_current->right())) {
+                    prev      = m_current;
+                    m_current = m_current->parent();
+                }
+            }
+        }
+
+     public:
+        using difference_type   = size_t;
+        using value_type        = T;
+        using pointer           = value_type *;
+        using reference         = value_type &;
+        using const_pointer     = value_type const*;
+        using const_reference   = value_type const&;
+        using iterator_category = std::forward_iterator_tag;
+
+        iterator(splay_tree<T> const& tree, size_t idx = 0) : m_current(&tree.smallest_no_splay()) {
+            for (int i=0; i<idx; i++) {
+                next();
+            }
+        }
+
+        iterator(stnode const* node) : m_current(node) {}
+
+        auto operator++()    -> iterator& { next(); return *this; }
+        auto operator++(int) -> iterator  { iterator retval = *this; ++(*this); return retval; }
+
+        auto operator==(iterator const& other) const -> bool { return m_current == other.m_current; }
+        auto operator!=(iterator const& other) const -> bool { return !(*this == other); }
+
+        auto operator* () -> const_reference { return  m_current->data(); }
+        auto operator->() -> const_pointer   { return &m_current->data(); }
     };
+
+    /** Returns const forward iterator on this vector starting at front */
+    auto begin() const -> iterator { return {*this}; }
+    /** Returns end position of const forward iterator */
+    auto end()   const -> iterator { return {nullptr}; }
+
+    /** Returns const forward iterator on this vector starting at front */
+    auto cbegin() const -> iterator { return {*this}; }
+    /** Returns end position of const forward iterator */
+    auto cend()   const -> iterator { return {nullptr}; }
 
 };

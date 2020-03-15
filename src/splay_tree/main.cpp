@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
 
     int size = argc >= 2 ? std::atoi(argv[1]) : 20;
 
+    list.reserve(size);
     for (int i=1; i<=size; i++) {
         list.push_back(i);
     }
@@ -29,6 +30,13 @@ int main(int argc, char *argv[]) {
         //print_ascii_tree(tree.root());
     }
     print_ascii_tree(tree.root());
+
+    std::cout << "\n";
+    std::cout << "Values in order: ";
+    for(auto const& v: tree) {
+        std::cout << v << " ";
+    }
+    std::cout << "\n";
 
     return 0;
 }

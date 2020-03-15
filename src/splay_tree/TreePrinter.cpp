@@ -15,7 +15,7 @@
 typedef struct asciinode_struct asciinode_t;
 
 // Renaming to reduce gunk
-using opt_node  = std::optional<const splay_tree_node<int>*>;
+using splay_node  = splay_tree_node<int> const*;
 using ascii_ptr = std::unique_ptr<asciinode_t>;
 
 // printing tree in ascii
@@ -47,33 +47,33 @@ typedef struct print_info_ {
 
 
 // saves me an annoying dereference
-static auto left(opt_node node) -> opt_node {
+static auto left(splay_node node) -> splay_node {
     if (node) {
-        return (*node)->left();
+        return node->left();
     } else {
-        return {std::nullopt};
+        return nullptr;
     }
 }
 
 
 // saves me an annoying dereference
-static auto right(opt_node node) -> opt_node {
+static auto right(splay_node node) -> splay_node {
     if (node) {
-        return (*node)->right();
+        return node->right();
     } else {
-        return {std::nullopt};
+        return nullptr;
     }
 }
 
 
 // saves me an annoying dereference
-static auto data(opt_node node) -> int {
-    return (*node)->data();
+static auto data(splay_node node) -> int {
+    return node->data();
 }
 
 
 /** Copies a given tree node into our own copy with some additional data. Performs recursive call */
-static auto build_ascii_tree_recursive(opt_node root) -> ascii_ptr {
+static auto build_ascii_tree_recursive(splay_node root) -> ascii_ptr {
     if (!root) return {};
 
     auto node = ascii_ptr{};
@@ -97,7 +97,7 @@ static auto build_ascii_tree_recursive(opt_node root) -> ascii_ptr {
 }
 
 /** Copies a given tree node into our own copy with some additional data. Expecting the root of the tree */
-static auto build_ascii_tree(opt_node root) -> ascii_ptr {
+static auto build_ascii_tree(splay_node root) -> ascii_ptr {
     auto node = ascii_ptr{};
 
     if (!root)
@@ -263,7 +263,7 @@ static auto print_level(print_info_t& pinfo, ascii_ptr& node, int x, int level) 
 }
 
 /** Prints ascii tree for given tree structure. Expecting the root of a tree. */
-auto print_ascii_tree(opt_node t) -> void {
+auto print_ascii_tree(splay_node t) -> void {
     auto proot  = ascii_ptr{};
     auto xmin   = int{};
     auto i      = int{};

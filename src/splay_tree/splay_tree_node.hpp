@@ -14,7 +14,7 @@
 template<typename T>
 class splay_tree_node {
  private:
-    template<typename U, typename splay_type> friend class splay_tree;
+    template<typename U, typename splay_type, typename Allocator> friend class splay_tree;
 
     ////////////////////////////////////////////////////////////////
     // ------------------------- FIELDS ------------------------- //
@@ -35,30 +35,18 @@ class splay_tree_node {
     auto data() const -> const T& { return  m_data; }
 
     /** Returns the left child if there is a left child, otherwise returns nullopt */
-    auto left() const -> std::optional<const splay_tree_node<T>*> {
-        if (m_left) {
-            return {m_left};
-        } else {
-            return {std::nullopt};
-        }
+    auto left() const -> splay_tree_node<T> const* {
+        return m_left;
     }
 
     /** Returns the right child if there is a right child, otherwise returns nullopt */
-    auto right() const -> std::optional<const splay_tree_node<T>*> {
-        if (m_right) {
-            return {m_right};
-        } else {
-            return {std::nullopt};
-        }
+    auto right() const -> splay_tree_node<T> const* {
+        return m_right;
     }
 
     /** Returns the parent if there is a parent, otherwise returns nullopt */
-    auto parent() const -> std::optional<const splay_tree_node<T>*> {
-        if (m_parent) {
-            return {m_parent};
-        } else {
-            return {std::nullopt};
-        }
+    auto parent() const -> splay_tree_node<T> const* {
+        return m_parent;
     }
 
 

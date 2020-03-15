@@ -122,8 +122,8 @@ class ring_vector {
         auto operator++()    -> iterator& { m_idx++; return *this; }
         auto operator++(int) -> iterator  { iterator retval = *this; ++(*this); return retval; }
 
-        auto operator==(iterator other) const -> bool { return m_idx == other.m_idx; }
-        auto operator!=(iterator other) const -> bool { return !(*this == other); }
+        auto operator==(iterator const& other) const -> bool { return m_idx == other.m_idx; }
+        auto operator!=(iterator const& other) const -> bool { return !(*this == other); }
 
         auto operator* () -> reference { return  m_array[m_idx]; }
         auto operator->() -> pointer   { return &m_array[m_idx]; }
