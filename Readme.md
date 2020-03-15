@@ -1,4 +1,4 @@
-A project implementing various data structures to practice C++17 with some modern features.
+A project implementing various data structures to practice C++17 with some modern features. These structures are intended to be compatible with STL container interfaces.
 
 Currently implemented structures:
   - ring_vector
@@ -7,4 +7,5 @@ Currently implemented structures:
   - splay_tree
     - Sorted self-balancing binary tree
     - Can select between full splay tree or semi-splay trees. Full splay operations splay the node all the way to the top of the tree while semi-splay will splay the node half way up the tree. Both display different performance metrics depending on the access sequence.
+    - Supports iteration in-order
     - https://en.wikipedia.org/wiki/Splay_tree
