@@ -49,13 +49,12 @@ class splay_tree_node {
         return m_parent;
     }
 
-
     ////////////////////////////////////////////////////////////////
     // ---------------------- CONSTRUCTORS ---------------------- //
     ////////////////////////////////////////////////////////////////
 
     template<typename U>
-    splay_tree_node(U&& data) : m_data{std::forward<U>(data)}, m_parent(nullptr), m_left(nullptr), m_right(nullptr) {}
+    splay_tree_node(U&& data, splay_tree_node<T> *parent=nullptr) : m_data{std::forward<T>(data)}, m_parent(parent), m_left(nullptr), m_right(nullptr) {}
 
 
     ////////////////////////////////////////////////////////////////

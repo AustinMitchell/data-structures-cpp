@@ -26,7 +26,7 @@ class splay_tree;
 template<typename T, typename Allocator>
 using semisplay_tree = splay_tree<T, semisplay, Allocator>;
 
-template<typename T, typename splay_type=fullsplay, typename Allocator = std::allocator<T>>
+template<typename T, typename splay_type=fullsplay, typename Allocator = std::allocator<splay_tree_node<T>>>
 class splay_tree {
     static_assert(std::disjunction<
                         std::is_same<splay_type, fullsplay>,
@@ -41,8 +41,9 @@ class splay_tree {
     // ------------------------- FIELDS ------------------------- //
     ////////////////////////////////////////////////////////////////
 
-    size_t m_size;
-    stnode *m_root;
+    size_t       m_size;
+    stnode      *m_root;
+    Allocator    m_alloc;
 
 
     ////////////////////////////////////////////////////////////////
@@ -271,7 +272,9 @@ class splay_tree {
             if (next->m_right) {
                 node_queue.push_back(next->m_right);
             }
-            delete next;
+
+            std::allocator_traits<Allocator>::destroy(m_alloc, next);
+            std::allocator_traits<Allocator>::deallocate(m_alloc, next, 1);
         }
     }
 
@@ -318,7 +321,8 @@ class splay_tree {
         m_size++;
 
         if (!m_root) {
-            m_root = new stnode(std::forward<U>(data));
+            m_root = std::allocator_traits<Allocator>::allocate(m_alloc, 1);
+            std::allocator_traits<Allocator>::construct(m_alloc, m_root, std::forward<U>(data));
             return;
         } else {
             auto current = &m_root;
@@ -333,7 +337,10 @@ class splay_tree {
                     current = &(*current)->m_right;
                 }
             }
-            *current = new stnode(std::forward<T>(data));
+
+            *current = std::allocator_traits<Allocator>::allocate(m_alloc, 1);
+            std::allocator_traits<Allocator>::construct(m_alloc, *current, std::forward<U>(data), parent);
+
             (*current)->m_parent = parent;
             splay(*current, height, splay_type{});
         }
