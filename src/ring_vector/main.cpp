@@ -182,4 +182,29 @@ int main() {
     std::cout << "Original Vector Size:     " << copyvec.size() << "\n";
     std::cout << "Original Vector Capacity: " << copyvec.capacity() << "\n";
 
+
+    std::cout << "\n";
+    std::cout << "Constructing array of 10 elements to test += / -= on iterator...\n";
+    for (int i=1; i<=10; i++) {
+        vec.push_back({i});
+    }
+
+    std::cout << "Values: ";
+    for(auto& v: vec) {
+        std::cout << v.val() << " ";
+    }
+    std::cout << "\n";
+
+    auto it = vec.begin();
+    std::cout << "it = vec.begin()  => Expected: 1,    Actual: " << it->val() << "\n";
+    it += 2;
+    std::cout << "it += 2           => Expected: 3,    Actual: " << it->val() << "\n";
+    it -= 3;
+    std::cout << "it -= 3           => Expected: 1,    Actual: " << it->val() << "\n";
+    std::cout << "it == vec.begin() => Expected: true, Actual: " << (it==vec.begin() ? "true" : "false") << "\n";
+    it += 15;
+    std::cout << "it += 15\n";
+    std::cout << "it == vec.end()   => Expected: true, Actual: " << (it==vec.end() ? "true" : "false") << "\n";
+
+
 }

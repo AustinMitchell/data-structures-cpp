@@ -7,15 +7,16 @@
 #include <cstring>
 #include <vector>
 #include <algorithm>
+#include <cstdint>
 
-
-using std::size_t;
 
 template<typename T, typename Allocator = std::allocator<T>>
 class ring_vector {
  private:
+    using ui32 = uint_fast32_t;
+
     Allocator   m_alloc;
-    size_t      m_begin,
+    ui32        m_begin,
                 m_end,
                 m_size,
                 m_capacity,
@@ -24,11 +25,13 @@ class ring_vector {
     T*          m_array;
 
 
-    auto resize(size_t new_capacity_bits) -> void {
-        size_t new_begin    = 0;
-        size_t new_end      = m_size;
-        size_t new_capacity = 1 << new_capacity_bits;
-        size_t new_idx_mask = new_capacity - 1;
+    auto resize(ui32 new_capacity_bits) -> void {
+        if (new_capacity_bits < 2) { new_capacity_bits=2; }
+
+        ui32 new_begin    = 0;
+        ui32 new_end      = m_size;
+        ui32 new_capacity = 1 << new_capacity_bits;
+        ui32 new_idx_mask = new_capacity - 1;
 
         T*     new_array = std::allocator_traits<Allocator>::allocate(m_alloc, new_capacity);
         if (m_size != 0) {
@@ -63,15 +66,15 @@ class ring_vector {
         if (m_size != 0) {
             if (m_begin < m_end) {
                 // All elements are contiguous and in order
-                for (size_t idx=m_begin; idx < m_begin+m_size; idx++) {
+                for (ui32 idx=m_begin; idx < m_begin+m_size; idx++) {
                     std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
                 }
             } else {
                 // All elements are not contiguous or in order
-                for (size_t idx=m_begin; idx < m_capacity; idx++) {
+                for (ui32 idx=m_begin; idx < m_capacity; idx++) {
                     std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
                 }
-                for (size_t idx=0; idx < m_end; idx++) {
+                for (ui32 idx=0; idx < m_end; idx++) {
                     std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
                 }
             }
@@ -84,22 +87,49 @@ class ring_vector {
     class iterator {
      private:
         ring_vector<T>& m_array;
-        size_t m_idx;
+        ui32 m_idx;
 
      public:
-        using difference_type   = size_t;
+        using difference_type   = ui32;
         using value_type        = T;
         using pointer           = value_type*;
         using reference         = value_type&;
         using iterator_category = std::forward_iterator_tag;
 
-        iterator(ring_vector<T>& array, size_t idx = 0) : m_array(array), m_idx(idx) {}
+        iterator(ring_vector<T>& array, ui32 idx = 0) : m_array(array), m_idx(idx) {}
 
         auto operator++()    -> iterator& { m_idx++; return *this; }
         auto operator++(int) -> iterator  { iterator retval = *this; ++(*this); return retval; }
+        auto operator+=(int offset) -> iterator  {
+            m_idx += offset;
+            m_idx = m_array.size() ^ ((m_idx ^ m_array.size()) & -(m_idx < m_array.size())); // min(x, y)
+            return *this;
+        }
+        auto operator+(int offset) -> iterator  {
+            iterator retval = *this;
+            return retval += offset;
+        }
+
+        auto operator--()    -> iterator& { m_idx--; return *this; }
+        auto operator--(int) -> iterator  { iterator retval = *this; --(*this); return retval; }
+        auto operator-=(int offset) -> iterator  {
+            int_fast64_t result = m_idx;
+            result -= offset;
+            m_idx = result ^ (result & -(result < 0)); // max(x, y)
+            return *this;
+        }
+        auto operator-(int offset) -> iterator  {
+            iterator retval = *this;
+            return retval -= offset;
+        }
 
         auto operator==(iterator other) const -> bool { return m_idx == other.m_idx; }
         auto operator!=(iterator other) const -> bool { return !(*this == other); }
+
+        auto operator> (iterator other) const -> bool { return m_idx > other.m_idx; }
+        auto operator>=(iterator other) const -> bool { return m_idx >= other.m_idx; }
+        auto operator< (iterator other) const -> bool { return m_idx < other.m_idx; }
+        auto operator<=(iterator other) const -> bool { return m_idx <= other.m_idx; }
 
         auto operator* () -> reference { return  m_array[m_idx]; }
         auto operator->() -> pointer   { return &m_array[m_idx]; }
@@ -108,16 +138,16 @@ class ring_vector {
     class const_iterator {
      private:
         const ring_vector<T>& m_array;
-        size_t m_idx;
+        ui32 m_idx;
 
      public:
-        using difference_type   = size_t;
+        using difference_type   = ui32;
         using value_type        = T;
         using pointer           = value_type const *;
         using reference         = const value_type&;
         using iterator_category = std::forward_iterator_tag;
 
-        const_iterator(const ring_vector<T>& array, size_t idx = 0) : m_array(array), m_idx(idx) {}
+        const_iterator(const ring_vector<T>& array, ui32 idx = 0) : m_array(array), m_idx(idx) {}
 
         auto operator++()    -> iterator& { m_idx++; return *this; }
         auto operator++(int) -> iterator  { iterator retval = *this; ++(*this); return retval; }
@@ -131,7 +161,7 @@ class ring_vector {
 
     using value_type        = T;
     using allocator_type    = Allocator;
-    using size_type         = size_t;
+    using size_type         = ui32;
     using difference_type   = std::ptrdiff_t;
     using reference         = value_type&;
     using const_reference   = const value_type&;
@@ -148,7 +178,7 @@ class ring_vector {
         m_array = std::allocator_traits<Allocator>::allocate(m_alloc, m_capacity);
     }
 
-    ring_vector(size_t reserve_space):  m_begin(0),
+    ring_vector(ui32 reserve_space):  m_begin(0),
                                         m_end(0),
                                         m_size(0) {
 
@@ -174,15 +204,15 @@ class ring_vector {
         if (m_size != 0) {
             if (m_begin < m_end) {
                 // All elements are contiguous and in order
-                for (size_t idx=m_begin; idx < m_begin+m_size; idx++) {
+                for (ui32 idx=m_begin; idx < m_begin+m_size; idx++) {
                     std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
                 }
             } else {
                 // All elements are not contiguous or in order
-                for (size_t idx=m_begin; idx < m_capacity; idx++) {
+                for (ui32 idx=m_begin; idx < m_capacity; idx++) {
                     std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
                 }
-                for (size_t idx=0; idx < m_end; idx++) {
+                for (ui32 idx=0; idx < m_end; idx++) {
                     std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
                 }
             }
@@ -197,8 +227,14 @@ class ring_vector {
                                       m_idx_mask(other.m_idx_mask) {
 
         m_array = other.m_array;
-        std::memset(&other, 0, sizeof(other));
 
+        other.m_begin           = 0;
+        other.m_end             = 0;
+        other.m_size            = 0;
+        other.m_capacity        = 1;
+        other.m_capacity_bits   = 0;
+        other.m_idx_mask        = 0;
+        other.m_array           = nullptr;
     }
 
     ~ring_vector() {
@@ -213,14 +249,14 @@ class ring_vector {
     /* ====================  ELEMENT ACCESS  ==================== */
 
     /** Returns reference to an element at the given position */
-    auto at(size_type pos)       -> reference       { return m_array[(pos + m_begin) & m_idx_mask]; }
+    auto at(ui32 pos)       -> reference       { return m_array[(pos + m_begin) & m_idx_mask]; }
     /** Returns const reference to an element at the given position */
-    auto at(size_type pos) const -> const_reference { return m_array[(pos + m_begin) & m_idx_mask]; }
+    auto at(ui32 pos) const -> const_reference { return m_array[(pos + m_begin) & m_idx_mask]; }
 
     /** Returns reference to an element at the given position */
-    auto operator[](size_type pos)       -> reference       { return m_array[(pos + m_begin) & m_idx_mask]; }
+    auto operator[](ui32 pos)       -> reference       { return m_array[(pos + m_begin) & m_idx_mask]; }
     /** Returns const reference to an element at the given position */
-    auto operator[](size_type pos) const -> const_reference { return m_array[(pos + m_begin) & m_idx_mask]; }
+    auto operator[](ui32 pos) const -> const_reference { return m_array[(pos + m_begin) & m_idx_mask]; }
 
     /** Returns reference to first element in vector */
     auto front() -> reference               { return m_array[m_begin]; }
@@ -259,19 +295,19 @@ class ring_vector {
     auto empty()    const -> bool   { return m_size==0; }
 
     /** Returns number of elements being used in array */
-    auto size()     const -> size_t { return m_size; }
+    auto size()     const -> ui32 { return m_size; }
 
     /** Returns number of reserved array elements */
-    auto capacity() const -> size_t { return m_capacity; }
+    auto capacity() const -> ui32 { return m_capacity; }
 
     /** Causes the vector to reallocate space, rounded up to the neareast power of 2 and copy over currently existing elements.
      * Will do nothing if the new capacity is smaller than size. This operation could increase or reduce capacity.
      * */
-    auto reserve(size_t capacity) -> void {
+    auto reserve(ui32 capacity) -> void {
         if (capacity < m_size) {
             return;
         }
-        size_t new_capacity_bits = 2;
+        ui32 new_capacity_bits = 2;
         while((1<<new_capacity_bits) < capacity) {
             new_capacity_bits++;
         }
@@ -282,7 +318,7 @@ class ring_vector {
 
     /** Attempts to return memory to the system by shrinking array capacity, to a minimum of 4. Equivalent to calling reserve(size) */
     auto shrink_to_fit() -> void {
-        reserve(std::max<size_t>(m_size, 4));
+        reserve(std::max<ui32>(m_size, 4));
     }
 
 
@@ -294,15 +330,15 @@ class ring_vector {
         if (m_size != 0) {
             if (m_begin < m_end) {
                 // All elements are contiguous and in order
-                for (size_t idx=m_begin; idx < m_begin+m_size; idx++) {
+                for (ui32 idx=m_begin; idx < m_begin+m_size; idx++) {
                     std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
                 }
             } else {
                 // All elements are not contiguous or in order
-                for (size_t idx=m_begin; idx < m_capacity; idx++) {
+                for (ui32 idx=m_begin; idx < m_capacity; idx++) {
                     std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
                 }
-                for (size_t idx=0; idx < m_end; idx++) {
+                for (ui32 idx=0; idx < m_end; idx++) {
                     std::allocator_traits<Allocator>::destroy(m_alloc, m_array+idx);
                 }
             }
@@ -316,7 +352,7 @@ class ring_vector {
     /** Place one element at the end of the vector. May invoke resizing if capacity is reached. */
     template<typename U=T>
     auto push_back(U&& value)  -> void {
-        if (m_size == m_capacity) {
+        if (m_size >= m_capacity-1) {
             resize(m_capacity_bits+1);
         }
 
@@ -328,7 +364,7 @@ class ring_vector {
     /** Place one element at the beginning of the vector. May invoke resizing if capacity is reached. */
     template<typename U=T>
     auto push_front(U&& value) -> void {
-        if (m_size == m_capacity) {
+        if (m_size >= m_capacity-1) {
             resize(m_capacity_bits+1);
         }
 
@@ -372,15 +408,15 @@ class ring_vector {
     }
 
     template<typename U=T>
-    auto insert(size_t pos, U&& value)  -> iterator {
+    auto insert(ui32 pos, U&& value)  -> iterator {
         if (m_size == 0) {
             push_back(std::forward<U>(value));
             return begin();
-        } else if (m_size == m_capacity) {
+        } else if (m_size >= m_capacity-1) {
             resize(m_capacity_bits+1);
         }
 
-        size_t arr_idx = 0;
+        ui32 arr_idx = 0;
 
         // Selects which direction to offset. This makes it so worst case you only ever move half the elements of the array.
         if (pos <= m_size/2) {
@@ -391,16 +427,16 @@ class ring_vector {
 
             if (m_begin <= arr_idx) {
                 // All elements to be shifted contiguous and in order
-                for (size_t idx=m_begin; idx < arr_idx; idx++) {
+                for (ui32 idx=m_begin; idx < arr_idx; idx++) {
                     m_array[idx] = std::move(m_array[idx+1]);
                 }
             } else {
                 // All elements to be shifted are not contiguous or in order
-                for (size_t idx=m_begin; idx < m_capacity-1; idx++) {
+                for (ui32 idx=m_begin; idx < m_capacity-1; idx++) {
                     m_array[idx] = std::move(m_array[idx+1]);
                 }
                 m_array[m_capacity-1] = std::move(m_array[0]);
-                for (size_t idx=0; idx < arr_idx; idx++) {
+                for (ui32 idx=0; idx < arr_idx; idx++) {
                     m_array[idx] = std::move(m_array[idx+1]);
                 }
             }
@@ -412,16 +448,16 @@ class ring_vector {
 
             if (m_end >= arr_idx) {
                 // All elements to be shifted contiguous and in order
-                for (size_t idx=m_end; idx > arr_idx; idx--) {
+                for (ui32 idx=m_end; idx > arr_idx; idx--) {
                     m_array[idx] = std::move(m_array[idx-1]);
                 }
             } else {
                 // All elements to be shifted are not contiguous or in order
-                for (size_t idx=m_end; idx > 0; idx--) {
+                for (ui32 idx=m_end; idx > 0; idx--) {
                     m_array[idx] = std::move(m_array[idx-1]);
                 }
                 m_array[0] = std::move(m_array[m_capacity-1]);
-                for (size_t idx=m_capacity-1; idx > arr_idx; idx--) {
+                for (ui32 idx=m_capacity-1; idx > arr_idx; idx--) {
                     m_array[idx] = std::move(m_array[idx-1]);
                 }
             }
@@ -455,15 +491,15 @@ class ring_vector {
         if (m_size != 0) {
             if (m_begin < m_end) {
                 // All elements are contiguous and in order
-                for (size_t idx=m_begin; idx < m_begin+m_size; idx++) {
+                for (ui32 idx=m_begin; idx < m_begin+m_size; idx++) {
                     std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
                 }
             } else {
                 // All elements are not contiguous or in order
-                for (size_t idx=m_begin; idx < m_capacity; idx++) {
+                for (ui32 idx=m_begin; idx < m_capacity; idx++) {
                     std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
                 }
-                for (size_t idx=0; idx < m_end; idx++) {
+                for (ui32 idx=0; idx < m_end; idx++) {
                     std::allocator_traits<Allocator>::construct(m_alloc, m_array+idx, other.m_array[idx]);
                 }
             }
@@ -484,7 +520,14 @@ class ring_vector {
         m_idx_mask      = other.m_idx_mask;
 
         m_array = other.m_array;
-        std::memset(&other, 0, sizeof(other));
+
+        other.m_begin           = 0;
+        other.m_end             = 0;
+        other.m_size            = 0;
+        other.m_capacity        = 1;
+        other.m_capacity_bits   = 0;
+        other.m_idx_mask        = 0;
+        other.m_array           = nullptr;
 
         return *this;
     }
