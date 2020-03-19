@@ -184,9 +184,12 @@ int main() {
 
 
     std::cout << "\n";
-    std::cout << "Constructing array of 10 elements to test += / -= on iterator...\n";
-    for (int i=1; i<=10; i++) {
-        vec.push_back({i});
+    std::cout << "Constructing array of 10 elements to test += / -= on iterator using front/back emplacement...\n";
+    for (int i=6; i<=10; i++) {
+        vec.emplace_back(i);
+    }
+    for (int i=5; i>0; i--) {
+        vec.emplace_front(i);
     }
 
     std::cout << "Values: ";
