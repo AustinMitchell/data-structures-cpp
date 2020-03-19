@@ -52,6 +52,11 @@ class splay_tree {
 
     /**
      * Rotates right assuming this node is the left child of parent
+     *      y          x
+     *     / \        / \
+     *    x   C  ->  A   y
+     *   / \            / \
+     *  A   B          B   C
      * @return  reference to where this nodes data was moved to
      */
     auto zig(stnode* node) -> stnode* {
@@ -73,6 +78,11 @@ class splay_tree {
 
     /**
      * Rotates left assuming this node is the right child of parent
+     *      x          y
+     *     / \        / \
+     *    y   C  <-  A   x
+     *   / \            / \
+     *  A   B          B   C
      * @return  reference to where this nodes data was moved to
      */
     auto zag(stnode* node) -> stnode* {
@@ -94,6 +104,13 @@ class splay_tree {
 
     /**
      * Performs two right rotations assuming this node is left-left child of grandparent
+     *       z          x
+     *      / \        / \
+     *     y   D      A   y
+     *    / \            / \
+     *   x   C    ->    B   z
+     *  / \                / \
+     * A   B              C   D
      * @return  reference to where this nodes data was moved to
      */
     auto zigzig(stnode* node) -> stnode* {
@@ -120,6 +137,13 @@ class splay_tree {
 
     /**
      * Performs two left rotations assuming this node is right-right child of grandparent
+     *       x          z
+     *      / \        / \
+     *     y   D      A   y
+     *    / \            / \
+     *   z   C    <-    B   x
+     *  / \                / \
+     * A   B              C   D
      * @return  reference to where this nodes data was moved to
      */
     auto zagzag(stnode* node) -> stnode* {
@@ -145,6 +169,13 @@ class splay_tree {
 
     /**
      * Performs a right then left rotation assuming this node is right-left child of grandparent
+     *   z                 x
+     *  / \               / \
+     * A   y             /   \
+     *    / \   ->      z     y
+     *   x   D         / \   / \
+     *  / \           A   B C   D
+     * B   C
      * @return  reference to where this nodes data was moved to
      */
     auto zigzag(stnode* node) -> stnode* {
@@ -169,6 +200,13 @@ class splay_tree {
 
     /**
      * Performs a left then right rotation assuming this node is left-right child of grandparent
+     *     z                 x
+     *    / \               / \
+     *   y   D             /   \
+     *  / \       ->      y     z
+     * A   x             / \   / \
+     *    / \           A   B C   D
+     *   B   C
      * @return  reference to where this nodes data was moved to
      */
     auto zagzig(stnode* node) -> stnode* {
