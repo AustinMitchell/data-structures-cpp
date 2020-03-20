@@ -12,7 +12,8 @@
 int main(int argc, char *argv[]) {
     std::srand(static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
 
-    auto tree = splay_tree<int>{};
+    auto tree1 = splay_tree<int>{};
+    auto tree2 = semisplay_tree<int>{};
     auto list = std::vector<int>{};
 
     int size = argc >= 2 ? std::atoi(argv[1]) : 20;
@@ -26,14 +27,32 @@ int main(int argc, char *argv[]) {
 
     for (int i=0; i<list.size(); i++) {
         //std::cout << "inserting " << list[i] << "...\n";
-        tree.insert(list[i]);
+        tree1.insert(list[i]);
+        tree2.insert(list[i]);
         //print_ascii_tree(tree.root());
     }
-    print_ascii_tree(tree.root());
+
+    std::cout << "Final splay tree:\n";
+    print_ascii_tree(tree1.root());
+    std::cout << "\n";
+    std::cout << "Final semisplay tree:\n";
+    print_ascii_tree(tree2.root());
 
     std::cout << "\n";
-    std::cout << "Values in order: ";
-    for(auto const& v: tree) {
+    std::cout << "Insert order:                  ";
+    for(auto v: list) {
+        std::cout << v << " ";
+    }
+
+    std::cout << "\n";
+    std::cout << "In-order traversal full splay: ";
+    for(auto const& v: tree1) {
+        std::cout << v << " ";
+    }
+
+    std::cout << "\n";
+    std::cout << "In-order traversal semi splay: ";
+    for(auto const& v: tree2) {
         std::cout << v << " ";
     }
     std::cout << "\n";
