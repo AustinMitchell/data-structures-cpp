@@ -23,7 +23,7 @@ template<typename T, typename splay_type, typename Allocator>
 class splay_tree;
 
 // Offering type name option for semisplay tree
-template<typename T, typename Allocator>
+template<typename T, typename Allocator=std::allocator<splay_tree_node<T>>>
 using semisplay_tree = splay_tree<T, semisplay, Allocator>;
 
 template<typename T, typename splay_type=fullsplay, typename Allocator = std::allocator<splay_tree_node<T>>>
@@ -228,48 +228,68 @@ class splay_tree {
         return node->m_parent;
     }
 
-    auto splay(stnode* node, int distance, fullsplay) -> void {
-        execute_splay(node, distance);
-    }
-
-    auto splay(stnode* node, int distance, semisplay) -> void {
-        execute_splay(node, distance/2);
-    }
-
-    auto execute_splay(stnode* node, int distance) -> void {
+    auto splay(stnode* node, int distance) -> void {
         //std::cout << "splay on node " << node->m_data << "\n";
         auto current = node;
         auto p       = current->m_parent;
 
-        while (p && distance>0) {
+        if constexpr(std::is_same<splay_type, semisplay>::value) {
+            // Semisplay variant: If access path is odd, begin with a zig/zag
+            if (distance%2 == 1) {
+                if (p->m_left == current) {
+                    current = zig(current);
+                } else {
+                    current = zag(current);
+                }
+                p = current->m_parent;
+            }
+        }
+
+        while (p) {
             auto gp = p->m_parent;
-            if (gp) {
+
+            if constexpr(std::is_same<splay_type, fullsplay>::value) {
+                if (gp) {
+                    if (gp->m_left == p) {
+                        if (p->m_left == current) {
+                            current = zigzig(current);
+                        } else {
+                            current = zagzig(current);
+                        }
+                    } else {
+                        if (p->m_left == current) {
+                            current = zigzag(current);
+                        } else {
+                            current = zagzag(current);
+                        }
+                    }
+                } else {
+                    if (p->m_left == current) {
+                        current = zig(current);
+                    } else  {
+                        current = zag(current);
+                    }
+                }
+
+            } else {
+                // Since access path is guaranteed even, don't check parent validity
                 if (gp->m_left == p) {
                     if (p->m_left == current) {
-                        current = zigzig(current);
-                        distance -= 2;
+                        // Semisplay variant: Perform one rotation on parent for zigzig case
+                        current = zig(p);
                     } else {
                         current = zagzig(current);
-                        distance -= 2;
                     }
                 } else {
                     if (p->m_left == current) {
                         current = zigzag(current);
-                        distance -= 2;
                     } else {
-                        current = zagzag(current);
-                        distance -= 2;
+                        // Semisplay variant: Perform one rotation on parent for zagzag case
+                        current = zag(p);
                     }
                 }
-            } else {
-                if (p->m_left == current) {
-                    current = zig(current);
-                    distance -= 1;
-                } else {
-                    current = zag(current);
-                    distance -= 1;
-                }
             }
+
 
             p = current->m_parent;
         }
@@ -380,7 +400,7 @@ class splay_tree {
             std::allocator_traits<Allocator>::construct(m_alloc, *current, std::forward<U>(data), parent);
 
             (*current)->m_parent = parent;
-            splay(*current, height, splay_type{});
+            splay(*current, height);
         }
     }
 
@@ -390,7 +410,7 @@ class splay_tree {
 
         while (current != nullptr) {
             if (data == current->data()) {
-                splay(current, height, splay_type{});
+                splay(current, height);
                 return true;
             } else if (data < current->data()) {
                 current = current->m_left;
@@ -410,7 +430,7 @@ class splay_tree {
             current = current->m_right;
             height++;
         }
-        splay(current, height, splay_type{});
+        splay(current, height);
         return *current;
     }
 
@@ -421,7 +441,7 @@ class splay_tree {
             current = current->m_left;
             height++;
         }
-        splay(current, height, splay_type{});
+        splay(current, height);
         return *current;
     }
 
@@ -467,7 +487,7 @@ class splay_tree {
         using const_reference   = value_type const&;
         using iterator_category = std::forward_iterator_tag;
 
-        iterator(splay_tree<T> const& tree, size_t idx = 0) : m_current(&tree.smallest_no_splay()) {
+        iterator(splay_tree<T, splay_type, Allocator> const& tree, size_t idx = 0) : m_current(&tree.smallest_no_splay()) {
             for (int i=0; i<idx; i++) {
                 next();
             }
