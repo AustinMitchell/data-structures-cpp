@@ -15,8 +15,8 @@
 typedef struct asciinode_struct asciinode_t;
 
 // Renaming to reduce gunk
-using splay_node  = splay_tree_node<int> const*;
-using ascii_ptr = std::unique_ptr<asciinode_t>;
+using splay_node = splay_tree_node<int> const*;
+using ascii_ptr  = std::unique_ptr<asciinode_t>;
 
 // printing tree in ascii
 struct asciinode_struct {
@@ -45,33 +45,6 @@ typedef struct print_info_ {
     print_info_(): gap(3) {}
 } print_info_t;
 
-
-// saves me an annoying dereference
-static auto left(splay_node node) -> splay_node {
-    if (node) {
-        return node->left();
-    } else {
-        return nullptr;
-    }
-}
-
-
-// saves me an annoying dereference
-static auto right(splay_node node) -> splay_node {
-    if (node) {
-        return node->right();
-    } else {
-        return nullptr;
-    }
-}
-
-
-// saves me an annoying dereference
-static auto data(splay_node node) -> int {
-    return node->data();
-}
-
-
 /** Copies a given tree node into our own copy with some additional data. Performs recursive call */
 static auto build_ascii_tree_recursive(splay_node root) -> ascii_ptr {
     if (!root) return {};
@@ -79,8 +52,8 @@ static auto build_ascii_tree_recursive(splay_node root) -> ascii_ptr {
     auto node = ascii_ptr{};
 
     node        = std::make_unique<asciinode_t>();
-    node->left  = build_ascii_tree_recursive(left(root));
-    node->right = build_ascii_tree_recursive(right(root));
+    node->left  = build_ascii_tree_recursive(root->left());
+    node->right = build_ascii_tree_recursive(root->right());
 
     if (node->left) {
         node->left->parent_dir = -1;
@@ -90,7 +63,7 @@ static auto build_ascii_tree_recursive(splay_node root) -> ascii_ptr {
         node->right->parent_dir = 1;
     }
 
-    node->label  = std::to_string(data(root));
+    node->label  = std::to_string(root->data());
     node->lablen = node->label.size();
 
     return node;
