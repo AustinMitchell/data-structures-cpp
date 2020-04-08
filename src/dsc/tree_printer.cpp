@@ -7,7 +7,8 @@
 #include <memory>
 #include <algorithm>
 
-#include "splay_tree_node.hpp"
+#include "dsc/tree_printer.hpp"
+#include "dsc/splay_tree_node.hpp"
 
 #define MAX_HEIGHT 1000
 #define INFINITY (1 << 20)

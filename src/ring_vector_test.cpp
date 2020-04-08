@@ -1,8 +1,9 @@
 // Copyright 2020 Nathaniel Mitchell
 
-#include "ring_vector.hpp"
 #include <iostream>
 #include <utility>
+
+#include "dsc/ring_vector.hpp"
 
 class Test {
     int * allocated;

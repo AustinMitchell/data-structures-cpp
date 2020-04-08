@@ -1,0 +1,3 @@
+[submodule "C_build_script"]
+	path = C_build_script
+	url = https://github.com/AustinMitchell/C_build_script.git

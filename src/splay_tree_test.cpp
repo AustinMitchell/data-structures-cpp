@@ -6,8 +6,8 @@
 #include <algorithm>
 #include <chrono>
 
-#include "splay_tree.hpp"
-#include "TreePrinter.hpp"
+#include "dsc/splay_tree.hpp"
+#include "dsc/tree_printer.hpp"
 
 int main(int argc, char *argv[]) {
     std::srand(static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
@@ -25,10 +25,10 @@ int main(int argc, char *argv[]) {
 
     std::random_shuffle(list.begin(), list.end());
 
-    for (int i=0; i<list.size(); i++) {
+    for (auto i: list) {
         //std::cout << "inserting " << list[i] << "...\n";
-        tree1.insert(list[i]);
-        tree2.insert(list[i]);
+        tree1.insert(i);
+        tree2.insert(i);
         //print_ascii_tree(tree.root());
     }
 

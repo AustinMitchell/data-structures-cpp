@@ -1,0 +1,15 @@
+COMPILER: "clang++"
+FLAGS: "-std=c++17 -Wall -Wextra -Wpedantic -O3"
+
+EXE_DIR: "./bin"
+EXE_FILE: "ring_vector_test"
+
+SOURCE_MAIN: "ring_vector_test.cpp"
+SOURCE_DIR: "./src/"
+SOURCE_EXT: "cpp"
+HEADER_DIR: "./include/"
+HEADER_EXT: "hpp"
+OBJECT_DIR: "./objects/"
+OBJECT_EXT: "o"
+
+OTHER_INCLUDES: ""

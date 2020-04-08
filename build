@@ -1,0 +1,38 @@
+#!/usr/bin/python3
+
+import argparse
+import C_build_script.make as make
+import shutil
+import os
+
+def main():
+    config_types = [
+        'splay-tree-test',
+        'splay-tree-perf',
+        'ring-vector-test',
+        'clean'
+    ]
+
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("config", choices=config_types, type=str, help="Config type. clean will delete bin and object folders.")
+    argparser.add_argument("-d", action='store_true', help="Sets build to debug mode")
+    args = argparser.parse_args()
+
+    if args.config == "clean":
+        if os.path.exists("bin"):
+            print("Removing 'bin/'")
+            shutil.rmtree("bin")
+        if os.path.exists("objects"):
+            print("Removing 'objects/'")
+            shutil.rmtree("objects")
+    else:
+        name = "config/" + args.config
+        if args.d:
+            name += "-debug"
+        name += ".yml"
+
+        make.main([f"--config={name}", "build"])
+
+
+if __name__ == "__main__":
+    main()

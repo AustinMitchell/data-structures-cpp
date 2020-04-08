@@ -1,0 +1,15 @@
+COMPILER: "clang++"
+FLAGS: "-std=c++17 -Wall -Wextra -Wpedantic -O3"
+
+EXE_DIR: "./bin"
+EXE_FILE: "splay_tree_perf"
+
+SOURCE_MAIN: "splay_tree_perf.cpp"
+SOURCE_DIR: "./src/"
+SOURCE_EXT: "cpp"
+HEADER_DIR: "./include/"
+HEADER_EXT: "hpp"
+OBJECT_DIR: "./objects/"
+OBJECT_EXT: "o"
+
+OTHER_INCLUDES: ""

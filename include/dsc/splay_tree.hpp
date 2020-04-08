@@ -11,7 +11,7 @@
 #include <type_traits>
 
 #include "splay_tree_node.hpp"
-#include "ring_vector/ring_vector.hpp"
+#include "ring_vector.hpp"
 
 using std::size_t;
 
@@ -488,7 +488,7 @@ class splay_tree {
         using iterator_category = std::forward_iterator_tag;
 
         iterator(splay_tree<T, splay_type, Allocator> const& tree, size_t idx = 0) : m_current(&tree.smallest_no_splay()) {
-            for (int i=0; i<idx; i++) {
+            for (size_t i=0; i<idx; i++) {
                 next();
             }
         }

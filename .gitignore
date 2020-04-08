@@ -1,4 +1,6 @@
 *.exe
 .vscode
 a.out
-build/
+*.o
+objects/
+bin/
