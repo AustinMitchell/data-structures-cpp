@@ -36,7 +36,7 @@ class Test {
 
 int main() {
     std::cout << "Creating vector with reserve space of 50\n";
-    auto vec = ring_vector<Test>{50};
+    auto vec = dsc::ring_vector<Test>{50};
 
     std::cout << "Size:     " << vec.size() << "\n";
     std::cout << "Capacity: " << vec.capacity() << "\n";

@@ -13,10 +13,12 @@
 #define MAX_HEIGHT 1000
 #define INFINITY (1 << 20)
 
+
 typedef struct asciinode_struct asciinode_t;
+typedef struct print_info_ print_info_t;
 
 // Renaming to reduce gunk
-using splay_node = splay_tree_node<int> const*;
+using splay_node = dsc::splay_tree_node<int> const*;
 using ascii_ptr  = std::unique_ptr<asciinode_t>;
 
 // printing tree in ascii
@@ -237,7 +239,7 @@ static auto print_level(print_info_t& pinfo, ascii_ptr& node, int x, int level) 
 }
 
 /** Prints ascii tree for given tree structure. Expecting the root of a tree. */
-auto print_ascii_tree(splay_node t) -> void {
+auto dsc::print_ascii_tree(splay_node t) -> void {
     auto proot  = ascii_ptr{};
     auto xmin   = int{};
     auto i      = int{};

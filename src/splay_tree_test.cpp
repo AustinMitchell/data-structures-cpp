@@ -12,8 +12,8 @@
 int main(int argc, char *argv[]) {
     std::srand(static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
 
-    auto tree1 = splay_tree<int>{};
-    auto tree2 = semisplay_tree<int>{};
+    auto tree1 = dsc::splay_tree<int>{};
+    auto tree2 = dsc::semisplay_tree<int>{};
     auto list = std::vector<int>{};
 
     int size = argc >= 2 ? std::atoi(argv[1]) : 20;
@@ -33,10 +33,10 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Final splay tree:\n";
-    print_ascii_tree(tree1.root());
+    dsc::print_ascii_tree(tree1.root());
     std::cout << "\n";
     std::cout << "Final semisplay tree:\n";
-    print_ascii_tree(tree2.root());
+    dsc::print_ascii_tree(tree2.root());
 
     std::cout << "\n";
     std::cout << "Insert order:                  ";
