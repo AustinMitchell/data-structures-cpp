@@ -2,7 +2,7 @@ COMPILER: "clang++"
 FLAGS: "-std=c++17 -Wall -Wextra -Wpedantic -O3"
 
 EXE_DIR: "./bin"
-EXE_FILE: "ring_vector_test"
+EXE_FILE: "ring-vector-test"
 
 SOURCE_MAIN: "ring_vector_test.cpp"
 SOURCE_DIR: "./src/"

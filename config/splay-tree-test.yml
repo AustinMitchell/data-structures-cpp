@@ -2,7 +2,7 @@ COMPILER: "clang++"
 FLAGS: "-std=c++17 -Wall -Wextra -Wpedantic -O3"
 
 EXE_DIR: "./bin"
-EXE_FILE: "splay_tree_test"
+EXE_FILE: "splay-tree-test"
 
 SOURCE_MAIN: "splay_tree_test.cpp"
 SOURCE_DIR: "./src/"

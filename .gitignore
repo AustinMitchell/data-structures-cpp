@@ -3,4 +3,5 @@
 a.out
 *.o
 objects/
+objects-debug/
 bin/

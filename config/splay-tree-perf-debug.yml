@@ -2,14 +2,14 @@ COMPILER: "clang++"
 FLAGS: "-std=c++17 -Wall -Wextra -Wpedantic -g -DDEBUG"
 
 EXE_DIR: "./bin"
-EXE_FILE: "splay_tree_perf"
+EXE_FILE: "splay-tree-perf-debug"
 
 SOURCE_MAIN: "splay_tree_perf.cpp"
 SOURCE_DIR: "./src/"
 SOURCE_EXT: "cpp"
 HEADER_DIR: "./include/"
 HEADER_EXT: "hpp"
-OBJECT_DIR: "./objects/"
+OBJECT_DIR: "./objects-debug/"
 OBJECT_EXT: "o"
 
 OTHER_INCLUDES: ""

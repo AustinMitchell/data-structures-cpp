@@ -2,14 +2,14 @@ COMPILER: "clang++"
 FLAGS: "-std=c++17 -Wall -Wextra -Wpedantic -g -DDEBUG"
 
 EXE_DIR: "./bin"
-EXE_FILE: "ring_vector_test"
+EXE_FILE: "ring-vector-test"
 
 SOURCE_MAIN: "ring_vector_test.cpp"
 SOURCE_DIR: "./src/"
 SOURCE_EXT: "cpp"
 HEADER_DIR: "./include/"
 HEADER_EXT: "hpp"
-OBJECT_DIR: "./objects/"
+OBJECT_DIR: "./objects-debug/"
 OBJECT_EXT: "o"
 
 OTHER_INCLUDES: ""

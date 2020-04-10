@@ -25,6 +25,9 @@ def main():
         if os.path.exists("objects"):
             print("Removing 'objects/'")
             shutil.rmtree("objects")
+        if os.path.exists("objects-debug"):
+            print("Removing 'objects-debug/'")
+            shutil.rmtree("objects-debug")
     else:
         name = "config/" + args.config
         if args.d:
