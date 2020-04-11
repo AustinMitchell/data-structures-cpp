@@ -296,6 +296,21 @@ namespace dsc {
             }
         }
 
+        /** Constructs a balanced binary tree recursively from a vector */
+        auto make_tree_from_vec(stnode* & node, stnode* parent, std::vector<T> const& sorted, int64_t lower, int64_t higher) {
+            auto range = higher-lower;
+            if (range < 0) {
+                return;
+            }
+
+            auto mid = lower + range/2;
+            node = std::allocator_traits<Allocator>::allocate(m_alloc, 1);
+            std::allocator_traits<Allocator>::construct(m_alloc, node, sorted[mid], parent);
+
+            make_tree_from_vec(node->m_left,  node, sorted, lower, mid-1);
+            make_tree_from_vec(node->m_right, node, sorted, mid+1, higher);
+        }
+
 
     public:
 
@@ -313,6 +328,13 @@ namespace dsc {
         ////////////////////////////////////////////////////////////////
 
         splay_tree(): m_size(0), m_root(nullptr) {}
+
+        /**
+         * Constructs a balanced tree from a sorted vector.
+        */
+        splay_tree(std::vector<T> const& sorted): m_size(sorted.size()), m_root(nullptr), m_alloc() {
+            make_tree_from_vec(m_root, nullptr, sorted, 0, m_size-1);
+        }
 
         ~splay_tree() {
             // Most nodes that need to be stored in a breadth first search is half of the total nodes
@@ -348,22 +370,20 @@ namespace dsc {
 
         auto size() const -> size_t { return m_size; }
 
-        auto largest_no_splay() const -> stnode const& {
+        auto empty() const -> bool  { return m_root == nullptr; }
+
+        auto max_no_splay() const -> stnode const& {
             auto current    = m_root;
-            auto height     = size_t{0};
             while (current->m_right) {
                 current = current->m_right;
-                height++;
             }
             return *current;
         }
 
-        auto smallest_no_splay() const -> stnode const&  {
+        auto min_no_splay() const -> stnode const&  {
             auto current    = m_root;
-            auto height     = size_t{0};
             while (current->m_left) {
                 current = current->m_left;
-                height++;
             }
             return *current;
         }
@@ -424,27 +444,55 @@ namespace dsc {
             return false;
         }
 
-        auto largest() -> stnode const& {
+        auto max() -> stnode const& {
             auto current    = m_root;
             auto height     = size_t{0};
             while (current->m_right) {
                 current = current->m_right;
-                height++;
+                if constexpr(std::is_same<splay_type, semisplay>::value) {
+                    height++;
+                }
             }
             splay(current, height);
             return *current;
         }
 
-        auto smallest() -> stnode const&  {
+        auto min() -> stnode const&  {
             auto current    = m_root;
             auto height     = size_t{0};
             while (current->m_left) {
                 current = current->m_left;
-                height++;
+                if constexpr(std::is_same<splay_type, semisplay>::value) {
+                    height++;
+                }
             }
             splay(current, height);
             return *current;
         }
+
+        auto delete_min_no_splay() -> T {
+            auto current    = m_root;
+            while (current->m_left) {
+                current = current->m_left;
+            }
+
+            auto ret = std::move(current->m_data);
+
+            if (current == m_root) {
+                m_root = m_root->m_right;
+            } else {
+                current->m_parent->m_left   = current->m_right;
+                if (current->m_right) {
+                    current->m_right->m_parent  = current->m_parent;
+                }
+            }
+
+            std::allocator_traits<Allocator>::destroy(m_alloc, current);
+            std::allocator_traits<Allocator>::deallocate(m_alloc, current, 1);
+
+            return ret;
+        }
+
 
 
         ////////////////////////////////////////////////////////////////
@@ -488,7 +536,7 @@ namespace dsc {
             using const_reference   = value_type const&;
             using iterator_category = std::forward_iterator_tag;
 
-            iterator(splay_tree<T, splay_type, Allocator> const& tree, size_t idx = 0) : m_current(&tree.smallest_no_splay()) {
+            iterator(splay_tree<T, splay_type, Allocator> const& tree, size_t idx = 0) : m_current(&tree.min_no_splay()) {
                 for (size_t i=0; i<idx; i++) {
                     next();
                 }
