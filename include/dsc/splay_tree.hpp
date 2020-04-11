@@ -311,6 +311,27 @@ namespace dsc {
             make_tree_from_vec(node->m_right, node, sorted, mid+1, higher);
         }
 
+        auto destroy() -> void {
+            auto node_queue = ring_vector<stnode*>{m_size/2 + 2};
+            if (!m_root) {
+                return;
+            }
+
+            node_queue.push_back(m_root);
+
+            while(!node_queue.empty()) {
+                stnode *next = node_queue.pop_front_get();
+                if (next->m_left) {
+                    node_queue.push_back(next->m_left);
+                }
+                if (next->m_right) {
+                    node_queue.push_back(next->m_right);
+                }
+
+                std::allocator_traits<Allocator>::destroy(m_alloc, next);
+                std::allocator_traits<Allocator>::deallocate(m_alloc, next, 1);
+            }
+        }
 
     public:
 
@@ -338,25 +359,7 @@ namespace dsc {
 
         ~splay_tree() {
             // Most nodes that need to be stored in a breadth first search is half of the total nodes
-            auto node_queue = ring_vector<stnode*>{m_size/2 + 2};
-            if (!m_root) {
-                return;
-            }
-
-            node_queue.push_back(m_root);
-
-            while(!node_queue.empty()) {
-                stnode *next = node_queue.pop_front_get();
-                if (next->m_left) {
-                    node_queue.push_back(next->m_left);
-                }
-                if (next->m_right) {
-                    node_queue.push_back(next->m_right);
-                }
-
-                std::allocator_traits<Allocator>::destroy(m_alloc, next);
-                std::allocator_traits<Allocator>::deallocate(m_alloc, next, 1);
-            }
+            destroy();
         }
 
 
@@ -493,7 +496,18 @@ namespace dsc {
             return ret;
         }
 
+        template<typename other_splay_type>
+        auto operator=(splay_tree<T, other_splay_type>&& other) -> splay_tree<T, splay_type>& {
 
+            destroy();
+
+            m_root       = other.m_root;
+            m_size       = other.m_size;
+            other.m_root = nullptr;
+            other.m_size = 0;
+
+            return *this;
+        }
 
         ////////////////////////////////////////////////////////////////
         // ------------------------ ITERATORS ----------------------- //
