@@ -2,9 +2,9 @@ COMPILER: "clang++"
 FLAGS: "-std=c++17 -Wall -Wextra -Wpedantic -g -DDEBUG"
 
 EXE_DIR: "./bin"
-EXE_FILE: "ring-vector-test-debug"
+EXE_FILE: "splay_tree_builder-debug"
 
-SOURCE_MAIN: "ring_vector_test.cpp"
+SOURCE_MAIN: "splay_tree_builder.cpp"
 SOURCE_DIR: "./src/"
 SOURCE_EXT: "cpp"
 HEADER_DIR: "./include/"
