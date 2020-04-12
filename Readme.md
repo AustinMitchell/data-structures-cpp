@@ -14,29 +14,38 @@ Currently implemented structures:
 
 ## Building Tests:
 
-A custom build script is used to create tests. Invoke `./build` to execute. This build script is a shorthand for invoking the <span>make.py</span> script from the C_build_script submodule and passing in a customized configuration file, located under `config/`. Requires Python3.
+A custom build script is used to create tests. Invoke `./build` to execute. This build script is a shorthand for invoking the <span>make.py</span> script from the C_build_script submodule. Requires Python3.
 
 ```
 ./build -h
-usage: build [-h] [-d]
-             {splay-tree-test,splay-tree-perf,ring-vector-test,clean}
-
-positional arguments:
-  {splay-tree-test,splay-tree-perf,ring-vector-test,clean}
-                        Config type. clean will delete bin and object folders.
+usage: build [-h] [-s S] [-d] [-c]
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -d                    Sets build to debug mode
+  -h, --help  show this help message and exit
+  -s SOURCE   Source file to generate executable from
+  -d          Sets build to debug mode
+  -c          Cleans all output files
+                 Sets build to debug mode
 ```
 
-For example, to build ring_vector_test:
+For example, to build ring_vector_test.cpp (full path is optional):
+```bash
+./build -s ring_vector_test.cpp
+# or
+./build -s src/ring_vector_test.cpp
 ```
-./build ring-vector-test
+
+Building ring_vector_test in debug mode:
+```bash
+./build -d -s ring_vector_test.cpp
 ```
 
 To remove the folders containing the executables and the object files:
-
+```bash
+./build -c
 ```
-./build clean
+
+Building ring_vector_test.cpp, and clean before building:
+```bash
+./build -c -s ring_vector_test.cpp
 ```
