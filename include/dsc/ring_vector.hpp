@@ -81,7 +81,9 @@ namespace dsc {
                 }
             }
 
-            std::allocator_traits<Allocator>::deallocate(m_alloc, m_array, m_capacity);
+            if (m_capacity > 0) {
+                std::allocator_traits<Allocator>::deallocate(m_alloc, m_array, m_capacity);
+            }
         }
 
     public:
@@ -163,7 +165,7 @@ namespace dsc {
             other.m_begin           = 0;
             other.m_end             = 0;
             other.m_size            = 0;
-            other.m_capacity        = 1;
+            other.m_capacity        = 0;
             other.m_capacity_bits   = 0;
             other.m_idx_mask        = 0;
             other.m_array           = nullptr;
@@ -356,7 +358,7 @@ namespace dsc {
         /** Place one element at the end of the vector. May invoke resizing if capacity is reached. */
         template<typename U=T>
         auto push_back(U&& value) -> void {
-            if (m_size >= m_capacity-1) {
+            if (m_size >= m_capacity) {
                 resize(m_capacity_bits+1);
             }
 
@@ -367,7 +369,7 @@ namespace dsc {
 
         template<typename... Args>
         auto emplace_back(Args&&... args) -> void {
-            if (m_size >= m_capacity-1) {
+            if (m_size >= m_capacity) {
                 resize(m_capacity_bits+1);
             }
 
@@ -379,7 +381,7 @@ namespace dsc {
         /** Place one element at the beginning of the vector. May invoke resizing if capacity is reached. */
         template<typename U=T>
         auto push_front(U&& value) -> void {
-            if (m_size >= m_capacity-1) {
+            if (m_size >= m_capacity) {
                 resize(m_capacity_bits+1);
             }
 
@@ -390,7 +392,7 @@ namespace dsc {
 
         template<typename... Args>
         auto emplace_front(Args&&... args) -> void {
-            if (m_size >= m_capacity-1) {
+            if (m_size >= m_capacity) {
                 resize(m_capacity_bits+1);
             }
 
@@ -438,7 +440,7 @@ namespace dsc {
             if (m_size == 0) {
                 push_back(std::forward<U>(value));
                 return begin();
-            } else if (m_size >= m_capacity-1) {
+            } else if (m_size >= m_capacity) {
                 resize(m_capacity_bits+1);
             }
 
@@ -550,7 +552,7 @@ namespace dsc {
             other.m_begin           = 0;
             other.m_end             = 0;
             other.m_size            = 0;
-            other.m_capacity        = 1;
+            other.m_capacity        = 0;
             other.m_capacity_bits   = 0;
             other.m_idx_mask        = 0;
             other.m_array           = nullptr;
