@@ -5,21 +5,17 @@ import C_build_script.make as make
 import shutil
 import os
 
+from pathlib import Path
+
 def main():
-    config_types = [
-        'splay-tree-test',
-        'splay-tree-perf',
-        'splay-tree-builder',
-        'ring-vector-test',
-        'clean'
-    ]
 
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("config", choices=config_types, type=str, help="Config type. clean will delete bin and object folders.")
+    argparser.add_argument("-s", action='store', type=str, help="Source file to generate executable from")
     argparser.add_argument("-d", action='store_true', help="Sets build to debug mode")
+    argparser.add_argument("-c", action='store_true', help="Cleans all output files")
     args = argparser.parse_args()
 
-    if args.config == "clean":
+    if args.c:
         if os.path.exists("bin"):
             print("Removing 'bin/'")
             shutil.rmtree("bin")
@@ -29,13 +25,31 @@ def main():
         if os.path.exists("objects-debug"):
             print("Removing 'objects-debug/'")
             shutil.rmtree("objects-debug")
-    else:
-        name = "config/" + args.config
-        if args.d:
-            name += "-debug"
-        name += ".yml"
+    
+    if args.s:
+        config = {
+            "COMPILER":     "clang++",
+            "EXE_DIR":      "./bin",
+            "SOURCE_MAIN":  Path(args.s).name,
+            "SOURCE_DIR":   "./src/",
+            "SOURCE_EXT":   "cpp",
+            "HEADER_DIR":   "./include/",
+            "HEADER_EXT":   "hpp",
+            "OBJECT_EXT":   "o",
+            "OTHER_INCLUDES": ""
+        }
 
-        make.main([f"--config={name}", "build"])
+        if args.d:
+            config["FLAGS"]         = "-std=c++17 -Wall -Wextra -Wpedantic -g -DDEBUG"
+            config["OBJECT_DIR"]    = "./objects-debug/"
+            config["EXE_FILE"]      = Path(args.s).stem + "-debug"
+        else:
+            config["FLAGS"]         = "-std=c++17 -Wall -Wextra -Wpedantic -O3"
+            config["OBJECT_DIR"]    = "./objects/"
+            config["EXE_FILE"]      = Path(args.s).stem
+
+        make.parse_dict(config)
+        make.execute("build")
 
 
 if __name__ == "__main__":
