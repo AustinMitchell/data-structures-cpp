@@ -43,9 +43,9 @@ auto test_uniform(int num_operations) {
         list.push_back(next_uniform(gen));
     }
 
-    cout << "UNIFORM DISTRIBUTION\n";
+    cout << "Uniform Distribution: " << num_operations << " find operations\n";
 
-    cout << "   Testing full splay tree with " << num_operations << " find operations...\n";
+    cout << "   Testing full splay tree...\n";
     {
         auto start  = timer::now();
         for (auto i: list) {
@@ -57,7 +57,85 @@ auto test_uniform(int num_operations) {
         cout << "\n";
     }
 
-    cout << "   Testing semi splay tree with " << num_operations << " find operations...\n";
+    cout << "   Testing semi splay tree...\n";
+    {
+        auto start  = timer::now();
+        for (auto i: list) {
+            tree_semi.contains(i);
+        }
+        auto end    = timer::now();
+        cout << "   Elapsed time: " << (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000.0) << "\n";
+        cout << "   Height: " << tree_semi.height() << "\n";
+        cout << "\n";
+    }
+}
+
+auto test_binomial(int num_operations) {
+    auto next_binomial = std::binomial_distribution<>(NUM_VALUES, 0.5);
+
+    auto list = std::vector<int>{};
+    list.reserve(num_operations);
+    for (auto i=0; i<num_operations; i++) {
+        list.push_back(next_binomial(gen));
+    }
+
+    cout << "\n";
+    cout << "Binomial Distribution: " << num_operations << " find operations\n";
+
+    cout << "   Testing full splay tree...\n";
+    {
+        auto start  = timer::now();
+        for (auto i: list) {
+            tree_full.contains(i);
+        }
+        auto end    = timer::now();
+        cout << "   Elapsed time: " << (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000.0) << "\n";
+        cout << "   Height: " << tree_full.height() << "\n";
+        cout << "\n";
+    }
+
+    cout << "   Testing semi splay tree...\n";
+    {
+        auto start  = timer::now();
+        for (auto i: list) {
+            tree_semi.contains(i);
+        }
+        auto end    = timer::now();
+        cout << "   Elapsed time: " << (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000.0) << "\n";
+        cout << "   Height: " << tree_semi.height() << "\n";
+        cout << "\n";
+    }
+}
+
+auto test_alternating_normal(int num_operations, int alternate_length, double stddev) {
+    auto list = std::vector<int>{};
+    auto range = std::uniform_real_distribution<>{0, 1};
+
+    list.reserve(num_operations);
+    while (list.size() < static_cast<std::vector<int>::size_type>(num_operations)) {
+        auto next_normal  = std::normal_distribution<>{NUM_VALUES*range(gen), stddev};
+        for (auto i=0; i<alternate_length; i++) {
+            list.push_back(next_normal(gen));
+        }
+    }
+
+    cout << "\n";
+    cout << "Normal Distribution, std. dev of " << stddev << ", changing mean every "
+         << alternate_length << " operations: " << num_operations << " total find operations\n";
+
+    cout << "   Testing full splay tree...\n";
+    {
+        auto start  = timer::now();
+        for (auto i: list) {
+            tree_full.contains(i);
+        }
+        auto end    = timer::now();
+        cout << "   Elapsed time: " << (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000.0) << "\n";
+        cout << "   Height: " << tree_full.height() << "\n";
+        cout << "\n";
+    }
+
+    cout << "   Testing semi splay tree...\n";
     {
         auto start  = timer::now();
         for (auto i: list) {
@@ -74,7 +152,9 @@ auto test_uniform(int num_operations) {
 auto main() -> int {
     construct_trees();
 
-    test_uniform(5000000);
+    //test_uniform(3000000);
+    //test_binomial(3000000);
+    test_alternating_normal(3000000, 10000, 1000);
 
     cout << "Deleting nodes in order on full splay tree\n";
     {
