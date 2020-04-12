@@ -9,6 +9,7 @@ def main():
     config_types = [
         'splay-tree-test',
         'splay-tree-perf',
+        'splay-tree-builder',
         'ring-vector-test',
         'clean'
     ]
