@@ -391,6 +391,35 @@ namespace dsc {
             return *current;
         }
 
+        auto height() const -> int  {
+            if (!m_root) {
+                return 0;
+            }
+
+            auto current_layer  = ring_vector<stnode const*>{};
+            auto next_layer     = ring_vector<stnode const*>{};
+            auto height         = 0;
+
+            current_layer.push_back(m_root);
+
+            while (!current_layer.empty()) {
+                height++;
+                // Check all nodes on this layer first
+                while (!current_layer.empty()) {
+                    auto current = current_layer.pop_front_get();
+                    if (current->left()) {
+                        next_layer.push_back(current->left());
+                    }
+                    if (current->right()) {
+                        next_layer.push_back(current->right());
+                    }
+                }
+                current_layer = std::move(next_layer);
+                next_layer = ring_vector<stnode const*>{current_layer.size()*2}; // reserve maximum possible spaces
+            }
+            return height;
+        }
+
 
         ////////////////////////////////////////////////////////////////
         // ----------------------- OPERATIONS ----------------------- //

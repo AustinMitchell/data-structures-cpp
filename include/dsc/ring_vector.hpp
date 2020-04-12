@@ -124,7 +124,7 @@ namespace dsc {
 
         /** Copy constructor which creates a ring vector with all attributes equal to another vector
          *  and copies all elements over with T's copy constructor */
-        ring_vector(const ring_vector& other): m_begin(other.m_begin),
+        ring_vector(ring_vector const& other): m_begin(other.m_begin),
                                             m_end(other.m_end),
                                             m_size(other.m_size),
                                             m_capacity(other.m_capacity),
@@ -310,7 +310,7 @@ namespace dsc {
          * Will do nothing if the new capacity is smaller than size. This operation could increase or reduce capacity.
          * */
         auto reserve(ui32 capacity) -> void {
-            if (capacity < m_size) {
+            if (capacity <= m_size) {
                 return;
             }
             ui32 new_capacity_bits = 2;

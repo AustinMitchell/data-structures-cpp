@@ -15,9 +15,13 @@ using timer = std::chrono::high_resolution_clock;
 auto const NUM_VALUES = 1000000;
 auto tree_full  = dsc::splay_tree<int>{};
 auto tree_semi  = dsc::semisplay_tree<int>{};
+auto rd             = std::random_device{};
+auto gen            = std::mt19937 {rd()};
 
 
 auto construct_trees() {
+    cout << "Constructing trees with " << NUM_VALUES << " nodes...\n";
+
     auto nums       = std::vector<int>{};
     nums.reserve(NUM_VALUES);
     for (auto i=1; i<=NUM_VALUES; i++) {
@@ -30,12 +34,47 @@ auto construct_trees() {
 }
 
 
-auto main() -> int {
-    auto rd             = std::random_device{};
-    auto gen            = std::mt19937 {rd()};
-    auto next_uniform   = std::uniform_int_distribution<>(1, NUM_VALUES);
+auto test_uniform(int num_operations) {
+    auto next_uniform = std::uniform_int_distribution<>(1, NUM_VALUES);
 
+    auto list = std::vector<int>{};
+    list.reserve(num_operations);
+    for (auto i=0; i<num_operations; i++) {
+        list.push_back(next_uniform(gen));
+    }
+
+    cout << "UNIFORM DISTRIBUTION\n";
+
+    cout << "   Testing full splay tree with " << num_operations << " find operations...\n";
+    {
+        auto start  = timer::now();
+        for (auto i: list) {
+            tree_full.contains(i);
+        }
+        auto end    = timer::now();
+        cout << "   Elapsed time: " << (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000.0) << "\n";
+        cout << "   Height: " << tree_full.height() << "\n";
+        cout << "\n";
+    }
+
+    cout << "   Testing semi splay tree with " << num_operations << " find operations...\n";
+    {
+        auto start  = timer::now();
+        for (auto i: list) {
+            tree_semi.contains(i);
+        }
+        auto end    = timer::now();
+        cout << "   Elapsed time: " << (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000.0) << "\n";
+        cout << "   Height: " << tree_semi.height() << "\n";
+        cout << "\n";
+    }
+}
+
+
+auto main() -> int {
     construct_trees();
+
+    test_uniform(5000000);
 
     cout << "Deleting nodes in order on full splay tree\n";
     {

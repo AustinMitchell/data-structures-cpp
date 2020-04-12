@@ -18,8 +18,10 @@ int main(int argc, char *argv[]) {
     auto tree2 = dsc::semisplay_tree<int>{};
     auto list = std::vector<int>{};
 
-    list.reserve(20);
-    for (int i=1; i<=20; i++) {
+    const auto list_size = 40;
+
+    list.reserve(list_size);
+    for (int i=1; i<=list_size; i++) {
         list.push_back(i);
     }
 
@@ -34,9 +36,11 @@ int main(int argc, char *argv[]) {
 
     cout << "Final splay tree:\n";
     dsc::print_ascii_tree(tree1.root());
+    cout << "Height: " << tree1.height() << "\n";
     cout << "\n";
     cout << "Final semisplay tree:\n";
     dsc::print_ascii_tree(tree2.root());
+    cout << "Height: " << tree2.height() << "\n";
 
     cout << "\n";
     cout << "Insert order:                  ";
@@ -55,6 +59,28 @@ int main(int argc, char *argv[]) {
     for(auto const& v: tree2) {
         cout << v << " ";
     }
+    cout << "\n\n";
+
+    cout << "Testing full splay tree for all values in order using contains()...\n";
+    for(auto i: list) {
+        if (!tree1.contains(i)) {
+            cout << "Full splay tree does not contain " << i << "\n";
+        }
+    }
+    cout << "\n";
+    cout << "Testing semi splay tree for all values in order using contains()...\n";
+    for(auto i: list) {
+        if (!tree2.contains(i)) {
+            cout << "Full splay tree does not contain " << i << "\n";
+        }
+    }
+    cout << "\n";
+
+    cout << "Splay tree after contains operations:\n";
+    dsc::print_ascii_tree(tree1.root());
+    cout << "\n";
+    cout << "Semisplay tree after contains operations:\n";
+    dsc::print_ascii_tree(tree2.root());
     cout << "\n";
 
     cout << "Creating a balanced tree with vector constructor\n";
