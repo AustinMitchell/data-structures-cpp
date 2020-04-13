@@ -220,8 +220,7 @@ namespace dsc {
             auto operator++()    -> iterator& { m_idx++; return *this; }
             auto operator++(int) -> iterator  { iterator retval = *this; ++(*this); return retval; }
             auto operator+=(int offset) -> iterator  {
-                m_idx += offset;
-                m_idx = m_array.size() ^ ((m_idx ^ m_array.size()) & -(m_idx < m_array.size())); // min(x, y)
+                m_idx = std::min(m_idx+offset, m_array.size());
                 return *this;
             }
             auto operator+(int offset) -> iterator  {
@@ -232,9 +231,7 @@ namespace dsc {
             auto operator--()    -> iterator& { m_idx--; return *this; }
             auto operator--(int) -> iterator  { iterator retval = *this; --(*this); return retval; }
             auto operator-=(int offset) -> iterator  {
-                int_fast64_t result = m_idx;
-                result -= offset;
-                m_idx = result ^ (result & -(result < 0)); // max(x, y)
+                m_idx = std::max(static_cast<int_fast64_t>(m_idx)-offset, int_fast64_t{0});
                 return *this;
             }
             auto operator-(int offset) -> iterator  {
