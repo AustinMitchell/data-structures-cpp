@@ -270,15 +270,17 @@ auto test_delete_nodes() -> void {
 
 
 auto main() -> int {
+    std::srand(static_cast<long unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
+
     construct_trees();
     //construct_trees_balanced();
 
-    test_uniform(10000000);
-    test_binomial(10000000);
-    test_alternating_normal(10000000, 500, 50);
-    test_uniform_repeating(30000000, 20, 1);
-    test_uniform_repeating(30000000, 50, 3);
-    test_uniform_repeating(30000000, 100, 5);
-    test_uniform_repeating(30000000, 100, 10);
+    //test_uniform(1000000);
+    //test_binomial(10000000);
+    //test_alternating_normal(10000000, 1000, 5);
+    //test_uniform_repeating(30000000, 20, 1);
+    //test_uniform_repeating(30000000, 50, 3);
+    //test_uniform_repeating(30000000, 100, 5);
+    //test_uniform_repeating(30000000, 100, 10);
     test_delete_nodes();
 }
