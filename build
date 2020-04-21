@@ -25,10 +25,11 @@ def main():
         if os.path.exists("objects-debug"):
             print("Removing 'objects-debug/'")
             shutil.rmtree("objects-debug")
-    
+
     if args.s:
         config = {
             "COMPILER":     "clang++",
+            "LINKER_FLAGS": "",
             "EXE_DIR":      "./bin",
             "SOURCE_MAIN":  Path(args.s).name,
             "SOURCE_DIR":   "./src/",
@@ -41,13 +42,13 @@ def main():
         }
 
         if args.d:
-            config["FLAGS"]         = "-std=c++17 -Wall -Wextra -Wpedantic -g -DDEBUG"
-            config["OBJECT_DIR"]    = "./objects-debug/"
-            config["EXE_FILE"]      = Path(args.s).stem + "-debug"
+            config["COMPILER_FLAGS"]    = "-std=c++17 -Wall -Wextra -Wpedantic -g -DDEBUG"
+            config["OBJECT_DIR"]        = "./objects-debug/"
+            config["EXE_FILE"]          = Path(args.s).stem + "-debug"
         else:
-            config["FLAGS"]         = "-std=c++17 -Wall -Wextra -Wpedantic -O3"
-            config["OBJECT_DIR"]    = "./objects/"
-            config["EXE_FILE"]      = Path(args.s).stem
+            config["COMPILER_FLAGS"]    = "-std=c++17 -Wall -Wextra -Wpedantic -O3"
+            config["OBJECT_DIR"]        = "./objects/"
+            config["EXE_FILE"]          = Path(args.s).stem
 
         make.parse_dict(config)
         make.execute("build")
