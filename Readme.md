@@ -17,7 +17,7 @@ Currently implemented structures:
 
 ## Building Tests:
 
-A custom build script is used to create tests. Invoke `./build` to execute. This build script is a shorthand for invoking the <span>make.py</span> script from the C_build_script submodule. Requires Python3.
+A custom build script is used to create tests. Invoke `./build` to execute. This build script is a shorthand for invoking the `make.py` script from the C_build_script submodule. Requires Python3.
 
 ```
 ./build -h
