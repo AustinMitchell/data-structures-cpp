@@ -6,16 +6,18 @@
 #include <mutex>
 #include <condition_variable>
 
+namespace dsc {
+
 template<typename T>
-class safe_box {
+class box {
     T                       data_;
     bool                    has_data_;
     std::mutex              mutex_;
     std::condition_variable cv_;
 
  public:
-    safe_box(): data_(), mutex_() {}
-    explicit safe_box(T init_data): data_(std::move(init_data)), mutex_() {}
+    box(): data_(), mutex_() {}
+    explicit box(T init_data): data_(std::move(init_data)), mutex_() {}
 
     auto get() -> T {
         auto lock = std::unique_lock{mutex_, std::defer_lock};
@@ -45,3 +47,5 @@ class safe_box {
         }
     }
 };
+
+}  // namespace dsc

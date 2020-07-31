@@ -2,18 +2,18 @@
 
 #include <iostream>
 #include <thread>
-#include "dsc/safe_box.hpp"
+#include "dsc/box.hpp"
 
 using std::cout;
 
-void getter(safe_box<int>& box, int idx) {
+void getter(dsc::box<int>& box, int idx) {
     for (int i=0; i<10; i++) {
         auto v = box.get();
         cout << "Getter " << idx << " recieved " << v << "\n";
     }
 }
 
-void putter(safe_box<int>& box, int idx) {
+void putter(dsc::box<int>& box, int idx) {
     for (int i=0; i<10; i++) {
         box.put(idx);
         cout << "Setter " << idx << " placed value\n";
@@ -21,7 +21,7 @@ void putter(safe_box<int>& box, int idx) {
 }
 
 int main() {
-    auto box = safe_box<int>{};
+    auto box = dsc::box<int>{};
 
     auto getter1 = std::thread{getter, box, 1};
     auto getter2 = std::thread{getter, box, 2};
