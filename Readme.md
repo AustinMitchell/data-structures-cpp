@@ -11,6 +11,9 @@ Currently implemented structures:
     - Can select between full splay tree or semi-splay trees. Full splay operations splay the node all the way to the top of the tree while semi-splay will splay the node half way up the tree. Both display different performance metrics depending on the access sequence.
     - Supports iteration in-order
     - https://en.wikipedia.org/wiki/Splay_tree
+  - box
+    - Thread safe storage which can have one item emplaced with `put` and retrieved with `get`
+    - If there is no item in the box, `get` will block until an item is placed with `put`, and if there is an item then `put` will block until an item is taken with `get`
 
 ## Building Tests:
 
