@@ -3,13 +3,13 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
-#include "dsc/box.hpp"
+#include "dsc/safe_box.hpp"
 
 using std::cout;
 
 std::mutex cout_mutex;
 
-void getter(dsc::box<int>& box, int idx, int rounds) {
+void getter(dsc::safe_box<int>& box, int idx, int rounds) {
     {
         auto lock = std::lock_guard{cout_mutex};
         cout << "Getter " << idx << " started\n";
@@ -23,7 +23,7 @@ void getter(dsc::box<int>& box, int idx, int rounds) {
     }
 }
 
-void putter(dsc::box<int>& box, int idx, int rounds) {
+void putter(dsc::safe_box<int>& box, int idx, int rounds) {
     {
         auto lock = std::lock_guard{cout_mutex};
         cout << "Setter " << idx << " started\n";
@@ -38,7 +38,7 @@ void putter(dsc::box<int>& box, int idx, int rounds) {
 }
 
 int main() {
-    auto box = dsc::box<int>{};
+    auto box = dsc::safe_box<int>{};
 
     auto getter1 = std::thread{getter, std::ref(box), 1, 5};
     auto getter2 = std::thread{getter, std::ref(box), 2, 5};
