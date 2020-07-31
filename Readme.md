@@ -1,6 +1,6 @@
 # Data Structures CPP (dsc)
 
-A project implementing various data structures to practice C++17 with some modern features. These structures are intended to be compatible with STL container interfaces.
+A project implementing various data structures to practice C++17 with some modern features.
 
 Currently implemented structures:
   - ring_vector
