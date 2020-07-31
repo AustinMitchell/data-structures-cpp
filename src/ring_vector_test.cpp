@@ -54,7 +54,7 @@ int main() {
     }
 
     std::cout << "Values: ";
-    for(auto& v: vec) {
+    for (auto& v: vec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n\n";
@@ -115,21 +115,21 @@ int main() {
 
     vec.insert(0, {1});
     std::cout << "Values: ";
-    for(auto& v: vec) {
+    for (auto& v: vec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n";
 
     vec.insert(11, {1});
     std::cout << "Values: ";
-    for(auto& v: vec) {
+    for (auto& v: vec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n";
 
     vec.insert(6, {1});
     std::cout << "Values: ";
-    for(auto& v: vec) {
+    for (auto& v: vec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n\n";
@@ -138,7 +138,7 @@ int main() {
     auto copyvec = vec;
 
     std::cout << "Values: ";
-    for(auto& v: copyvec) {
+    for (auto& v: copyvec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n";
@@ -150,7 +150,7 @@ int main() {
     auto movevec = std::move(vec);
 
     std::cout << "Values: ";
-    for(auto& v: movevec) {
+    for (auto& v: movevec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n";
@@ -163,7 +163,7 @@ int main() {
     copyassvec      = copyvec;
 
     std::cout << "Values: ";
-    for(auto& v: copyassvec) {
+    for (auto& v: copyassvec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n";
@@ -176,7 +176,7 @@ int main() {
     moveassvec      = std::move(copyvec);
 
     std::cout << "Values: ";
-    for(auto& v: moveassvec) {
+    for (auto& v: moveassvec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n";
@@ -194,7 +194,7 @@ int main() {
     }
 
     std::cout << "Values: ";
-    for(auto& v: vec) {
+    for (auto& v: vec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n";
@@ -209,6 +209,4 @@ int main() {
     it += 15;
     std::cout << "it += 15\n";
     std::cout << "it == vec.end()   => Expected: true, Actual: " << (it==vec.end() ? "true" : "false") << "\n";
-
-
 }
