@@ -311,10 +311,6 @@ public:
             }
         }
 
-        if (size_*4 < capacity_) {
-            resize(capacity_/2);
-        }
-
         return popped;
     }
 

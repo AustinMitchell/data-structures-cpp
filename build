@@ -49,8 +49,7 @@ def main():
             "RESOURCES":            resource_mappings,
             "DEPEND_MAPPING":       dependency_mapping,
             "COMPILATION_DATABASE": True,
-            # globs for source_main should
-            #  skip linker to avoid multiple main linkage
+            # globs for source_main should skip linker to avoid multiple main linkage
             "SKIP_LINKER":          True if "*" in str(source_main) else False
         }
 

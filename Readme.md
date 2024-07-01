@@ -1,6 +1,6 @@
 # Data Structures CPP (dsc)
 
-A project implementing various data structures to practice C++17 with some modern features.
+A project implementing various data structures to practice C++23 with some modern features.
 
 Currently implemented structures:
   - ring_vector
@@ -14,33 +14,43 @@ Currently implemented structures:
   - safe_box
     - Thread safe storage which can have one item emplaced with `put` and retrieved with `get`
     - If there is no item in the box, `get` will block until an item is placed with `put`, and if there is an item then `put` will block until an item is taken with `get`
+  - safe_queue
+    - Thread safe FIFO queue
+    - `get` calls will block until there are items to take. `try_get` will fail and exit the function if there are no items.
+  - heap
+    - Array-backed heap structure providing O(log n) insertion and removal.
+    - Supports min and max heap for any T that supports operators `<` and `>`
 
 ## Building Tests:
 
 A custom build script is used to create tests. Invoke `./build` to execute. This build script is a shorthand for invoking the `make.py` script from the C_build_script submodule. Requires Python3.
 
 ```
-./build -h
-usage: build [-h] [-s S] [-d] [-c]
+❯ python3 .\build -h
+usage: build [-h] [-s SOURCE] [-o EXE NAME] [-a] [-d] [-c]
 
-optional arguments:
-  -h, --help  show this help message and exit
-  -s SOURCE   Source file to generate executable from
-  -d          Sets build to debug mode
-  -c          Cleans all output files
-                 Sets build to debug mode
+options:
+  -h, --help   show this help message and exit
+  -s SOURCE    Source file to generate executable from
+  -o EXE NAME  Executable output name
+  -a           Build all and skip linking
+  -d           Sets build to debug mode
+  -c           Cleans all output files
 ```
 
-For example, to build ring_vector_test.cpp (full path is optional):
+Build all source files, no executable:
 ```bash
-./build -s ring_vector_test.cpp
-# or
+./build -a
+```
+
+Build executable for ring_vector_test.cpp:
+```bash
 ./build -s src/ring_vector_test.cpp
 ```
 
-Building ring_vector_test in debug mode:
+Building executable for ring_vector_test in debug mode:
 ```bash
-./build -d -s ring_vector_test.cpp
+./build -d -s src/ring_vector_test.cpp
 ```
 
 To remove the folders containing the executables and the object files:
@@ -48,7 +58,7 @@ To remove the folders containing the executables and the object files:
 ./build -c
 ```
 
-Building ring_vector_test.cpp, and clean before building:
+Building executable for ring_vector_test.cpp, and clean before building:
 ```bash
-./build -c -s ring_vector_test.cpp
+./build -c -s src/ring_vector_test.cpp
 ```

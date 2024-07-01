@@ -120,14 +120,14 @@ int main() {
     }
     std::cout << "\n";
 
-    vec.insert(11, {1});
+    vec.insert(11, {2});
     std::cout << "Values: ";
     for (auto& v: vec) {
         std::cout << v.val() << " ";
     }
     std::cout << "\n";
 
-    vec.insert(6, {1});
+    vec.insert(6, {3});
     std::cout << "Values: ";
     for (auto& v: vec) {
         std::cout << v.val() << " ";
