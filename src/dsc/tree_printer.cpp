@@ -3,7 +3,6 @@
 // Converted into C++17 code
 
 #include <stdio.h>
-#include <optional>
 #include <memory>
 #include <algorithm>
 
@@ -11,7 +10,7 @@
 #include "dsc/splay_tree_node.hpp"
 
 #define MAX_HEIGHT 1000
-#define INFINITY (1 << 20)
+#define INFINITY_LOCAL (1 << 20)
 
 
 typedef struct asciinode_struct asciinode_t;
@@ -152,7 +151,7 @@ static auto compute_edge_lengths(print_info_t& pinfo, ascii_ptr& node) -> void {
     } else {
         if (node->left != NULL) {
             for (i = 0; i < node->left->height && i < MAX_HEIGHT; i++) {
-                pinfo.rprofile[i] = -INFINITY;
+                pinfo.rprofile[i] = -INFINITY_LOCAL;
             }
             compute_rprofile(pinfo, node->left, 0, 0);
             hmin = node->left->height;
@@ -161,7 +160,7 @@ static auto compute_edge_lengths(print_info_t& pinfo, ascii_ptr& node) -> void {
         }
         if (node->right != NULL) {
             for (i = 0; i < node->right->height && i < MAX_HEIGHT; i++) {
-                pinfo.lprofile[i] = INFINITY;
+                pinfo.lprofile[i] = INFINITY_LOCAL;
             }
             compute_lprofile(pinfo, node->right, 0, 0);
             hmin = std::min(node->right->height, hmin);
@@ -252,7 +251,7 @@ auto dsc::print_ascii_tree(splay_node t) -> void {
 
     compute_edge_lengths(pinfo, proot);
     for (i = 0; i < proot->height && i < MAX_HEIGHT; i++) {
-        pinfo.lprofile[i] = INFINITY;
+        pinfo.lprofile[i] = INFINITY_LOCAL;
     }
 
     compute_lprofile(pinfo, proot, 0, 0);

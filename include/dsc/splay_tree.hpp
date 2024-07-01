@@ -2,12 +2,8 @@
 
 #pragma once
 
-#include <iostream>
 #include <memory>
 #include <utility>
-#include <string>
-#include <sstream>
-#include <optional>
 #include <type_traits>
 #include <vector>
 
@@ -593,14 +589,14 @@ class splay_tree {
     };
 
     /** Returns const forward iterator on this vector starting at front */
-    auto begin() const -> iterator { return {*this}; }
+    auto begin() const -> iterator { return iterator{*this}; }
     /** Returns end position of const forward iterator */
-    auto end()   const -> iterator { return {nullptr}; }
+    auto end()   const -> iterator { return iterator{nullptr}; }
 
     /** Returns const forward iterator on this vector starting at front */
-    auto cbegin() const -> iterator { return {*this}; }
+    auto cbegin() const -> iterator { return iterator{*this}; }
     /** Returns end position of const forward iterator */
-    auto cend()   const -> iterator { return {nullptr}; }
+    auto cend()   const -> iterator { return iterator{nullptr}; }
 
 };
 

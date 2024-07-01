@@ -4,13 +4,17 @@ import argparse
 import C_build_script.make as make
 import shutil
 import os
+import sys
 
 from pathlib import Path
+
 
 def main():
 
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("-s", action='store', type=str, metavar="SOURCE", help="Source file to generate executable from")
+    argparser.add_argument("-s", action='store', type=str, metavar="SOURCE",    help="Source file to generate executable from")
+    argparser.add_argument("-o", action='store', type=str, metavar="EXE NAME",  help="Executable output name")
+    argparser.add_argument("-a", action='store_true', help="Build all and skip linking")
     argparser.add_argument("-d", action='store_true', help="Sets build to debug mode")
     argparser.add_argument("-c", action='store_true', help="Cleans all output files")
     args = argparser.parse_args()
@@ -26,29 +30,45 @@ def main():
             print("Removing 'objects-debug/'")
             shutil.rmtree("objects-debug")
 
-    if args.s:
+    dependency_mapping = {
+
+    }
+
+    # Copy folders directly into bin
+    resource_mappings = {
+
+    }
+
+    if args.s or args.a:
+        source_main = "*.cpp" if args.a else Path(args.s).relative_to("src")
         config = {
-            "COMPILER":     "clang++",
-            "LINKER_FLAGS": "-pthread",
-            "EXE_DIR":      "./bin",
-            "SOURCE_MAIN":  Path(args.s).name,
-            "SOURCE_DIR":   "./src/",
-            "SOURCE_EXT":   "cpp",
-            "HEADER_DIR":   "./include/",
-            "HEADER_EXT":   "hpp",
-            "OBJECT_EXT":   "o",
-            "OTHER_INCLUDES": "",
-            "RESOURCES": []
+            "COMPILER":             "clang++",
+            "LINKER_FLAGS":         "-pthread",
+            "SOURCE_DIR":           "src/",
+            "SOURCE_MAIN":          source_main,
+            "RESOURCES":            resource_mappings,
+            "DEPEND_MAPPING":       dependency_mapping,
+            "COMPILATION_DATABASE": True,
+            # globs for source_main should
+            #  skip linker to avoid multiple main linkage
+            "SKIP_LINKER":          True if "*" in str(source_main) else False
         }
 
         if args.d:
-            config["COMPILER_FLAGS"]    = "-std=c++17 -Wall -Wextra -Wpedantic -g -DDEBUG"
-            config["OBJECT_DIR"]        = "./objects-debug/"
-            config["EXE_FILE"]          = Path(args.s).stem + "-debug"
+            config["COMPILER_FLAGS"] = "-std=c++23 -Wall -Wextra -Wpedantic -g -O0 -DDEBUG -Wno-language-extension-token"
+            config["LINKER_FLAGS"] += " -g"
+            config["OBJECT_DIR"] = "./objects-debug/"
+            config["EXE_FILE"] = "prog-debug"
         else:
-            config["COMPILER_FLAGS"]    = "-std=c++17 -Wall -Wextra -Wpedantic -O3"
-            config["OBJECT_DIR"]        = "./objects/"
-            config["EXE_FILE"]          = Path(args.s).stem
+            config["COMPILER_FLAGS"] = "-std=c++23 -Wall -Wextra -Wpedantic -O3 -Wno-language-extension-token"
+            config["OBJECT_DIR"] = "./objects/"
+            config["EXE_FILE"] = "prog"
+
+        if args.o:
+            config["EXE_FILE"] = args.o
+
+        if sys.platform == "win32":
+            config["EXE_FILE"] += ".exe"
 
         make.parse_dict(config)
         make.execute("build")

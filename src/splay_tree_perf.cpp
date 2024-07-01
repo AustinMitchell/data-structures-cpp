@@ -1,7 +1,6 @@
 // Copyright 2019 Nathaniel Mitchell
 
 #include <iostream>
-#include <string>
 #include <vector>
 #include <algorithm>
 #include <random>
@@ -47,7 +46,10 @@ auto construct_trees() {
     for (auto i=1; i<=NUM_VALUES; i++) {
         list.push_back(i);
     }
-    std::random_shuffle(list.begin(), list.end());
+
+    std::random_device rd;
+    std::mt19937 g(rd()); 
+    std::shuffle(list.begin(), list.end(), g);
 
     cout << "   Inserting into full splay tree...\n";
     {
@@ -242,12 +244,13 @@ auto test_uniform_repeating(unsigned long num_operations, int repeat_count, int 
 auto test_delete_nodes() -> void {
     cout << "Deleting nodes in order on full splay tree\n";
     {
-        auto prev       = tree_full.delete_min_no_splay();
-        auto current    = tree_full.delete_min_no_splay();
+        //auto prev       = tree_full.delete_min_no_splay();
+        // auto current    = tree_full.delete_min_no_splay();
         auto start      = timer::now();
         while (!tree_full.empty()) {
-            prev    = current;
-            current = tree_full.delete_min_no_splay();
+            // prev    = current;
+            // auto current = tree_full.delete_min_no_splay();
+            tree_full.delete_min_no_splay();
         }
         auto end        = timer::now();
         cout << "Elapsed time: " << (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000.0) << "\n";
@@ -256,12 +259,13 @@ auto test_delete_nodes() -> void {
     cout << "\n";
     cout << "Deleting nodes in order on semi splay tree\n";
     {
-        auto prev       = tree_semi.delete_min_no_splay();
-        auto current    = tree_semi.delete_min_no_splay();
+        // auto prev       = tree_semi.delete_min_no_splay();
+        // auto current    = tree_semi.delete_min_no_splay();
         auto start      = timer::now();
         while (!tree_semi.empty()) {
-            prev    = current;
-            current = tree_semi.delete_min_no_splay();
+            // prev    = current;
+            // current = tree_semi.delete_min_no_splay();
+            tree_semi.delete_min_no_splay();
         }
         auto end        = timer::now();
         cout << "Elapsed time: " << (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000.0) << "\n";

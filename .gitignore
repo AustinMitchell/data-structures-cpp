@@ -5,3 +5,5 @@ a.out
 objects/
 objects-debug/
 bin/
+.cache/
+compile_commands.json

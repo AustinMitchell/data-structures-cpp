@@ -1,7 +1,7 @@
 // Copyright 2019 Nathaniel Mitchell
 
 #include <iostream>
-#include <string>
+#include <random>
 #include <vector>
 #include <algorithm>
 #include <chrono>
@@ -25,7 +25,9 @@ int main(int argc, char *argv[]) {
         list.push_back(i);
     }
 
-    std::random_shuffle(list.begin(), list.end());
+    std::random_device rd;
+    std::mt19937 g(rd()); 
+    std::shuffle(list.begin(), list.end(), g);
 
     for (auto i: list) {
         //cout << "inserting " << list[i] << "...\n";

@@ -2,10 +2,10 @@
 
 #pragma once
 
+#include <iterator>
 #include <memory>
 #include <cstddef>
 #include <cstring>
-#include <vector>
 #include <algorithm>
 #include <cstdint>
 #include <utility>
@@ -14,7 +14,7 @@ namespace dsc {
 
 template<typename T, typename Allocator = std::allocator<T>>
 class ring_vector {
-    using ui32 = uint_fast32_t;
+    using ui32 = size_t;
 
     Allocator   alloc_;
     ui32        begin_,
@@ -34,23 +34,31 @@ class ring_vector {
         ui32 new_capacity = 1 << new_capacity_bits;
         ui32 new_idx_mask = new_capacity - 1;
 
-        T*     new_array = std::allocator_traits<Allocator>::allocate(alloc_, new_capacity);
+        T* new_array = std::allocator_traits<Allocator>::allocate(alloc_, new_capacity);
         if (size_ != 0) {
             if (begin_ < end_) {
                 // All elements are contiguous and in order
                 if constexpr (std::is_trivially_copyable_v<T>) {
-                    std::memcpy(array_+begin_, array_+end_, new_array);
+                    std::memcpy(new_array, array_+begin_, size_*sizeof(T));
                 } else {
-                    std::move(array_, array_+begin_, new_array);
+                    // move construct all elements
+                    for (ui32 idx = 0; idx < size_; idx++) {
+                        std::allocator_traits<Allocator>::construct(alloc_, new_array+idx, std::move(array_[begin_+idx]));
+                    }
                 }
             } else {
                 // All elements are not contiguous or in order
                 if constexpr (std::is_trivially_copyable_v<T>) {
-                    std::memcpy(new_array,                        array_ + begin_, sizeof(T) * (capacity_ - begin_));
+                    std::memcpy(new_array,                      array_ + begin_, sizeof(T) * (capacity_ - begin_));
                     std::memcpy(new_array + (capacity_-begin_), array_,          sizeof(T) * size_ - (capacity_ - begin_));
                 } else {
-                    std::move(array_+begin_, array_+capacity_, new_array);
-                    std::move(array_,        array_+end_,      new_array + (capacity_-begin_));
+                    // move construct all elements
+                    for (ui32 idx = 0; idx < capacity_ - begin_; idx++) {
+                        std::allocator_traits<Allocator>::construct(alloc_, new_array+idx, std::move(array_[begin_+idx]));
+                    }
+                    for (ui32 idx = (capacity_ - begin_); idx < size_; idx++) {
+                        std::allocator_traits<Allocator>::construct(alloc_, new_array+idx, std::move(array_[idx - (capacity_ - begin_)]));
+                    }
                 }
             }
         }
